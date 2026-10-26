@@ -40,9 +40,9 @@ $hvigor = 'D:\develop\harmony\DevEco Studio\tools\hvigor\bin\hvigorw.js'
 | P-04 统计榜单 | ✅ | 用户卡、热力图、难度分布、徽章、排行榜、设置行 |
 | 全局框架 | ✅ | AppBar + 四 Tab（保留各页状态）、Toast、打卡庆祝遮罩 |
 | RDB 持久化 | ✅ | `data/db`（v2）：7 张表（user / check_in / problem / contest / app_setting / submission / sync_job）、首启种子灌库、打卡与提交落库、当日 AC 聚合 |
-| 单元测试 | ✅ | hypium 本地单测 **75 条全通过**（难度/日期/打卡/映射/同步策略/热力图/提醒/重试/真实统计），行覆盖 85.59%、分支 72.63% |
+| 单元测试 | ✅ | hypium 本地单测 **79 条全通过**（难度/日期/打卡/映射/同步策略/热力图/提醒/重试/真实统计/赛程），行覆盖 86.45%、分支 71.85% |
 | 平台同步 | 🟡 | **四平台齐备（CF 真机已验证）**：节流 → HTTP/GraphQL → 映射 → 幂等落库 → 当日 AC；LC 需登录 Cookie，失败自动重试 |
-| 赛事与外链 | ✅ | ICPC/CCPC 赛程取自 [CPC Finder](https://cpcfinder.com/contest) 公开接口；题目与赛事按钮跳转系统浏览器 |
+| 赛事与外链 | ✅ | ICPC/CCPC（[CPC Finder](https://cpcfinder.com/contest)）+ Codeforces + AtCoder 真实赛程；题目与赛事按钮跳转系统浏览器 |
 | 数据可视化 | ✅ | 热力图、难度分布、连续天数、总 AC 全部按本地记录计算；无数据显示 0 或空态 |
 | 通知提醒 | 🟡 | 每日 21:30 通过 `reminderAgentManager` 发布代理提醒，设置开关联动；待真机验证送达 |
 
@@ -92,7 +92,7 @@ $env:DEVECO_SDK_HOME = 'D:\develop\harmony\DevEco Studio\sdk'
 4. **LC 难度为兜底值**：最近 AC 不含难度，统一按 ★3 计，后续按 titleSlug 补元数据。
 5. **重试仅在启动时消费**：失败会落一条重试记录并按 1/5/15 分钟退避，应用不重启则不会自动重试；无后台常驻调度。
 6. **AtCoder 难度为估算值**：按题位字母映射（A→★1 … G→★5），未接 `problem-models.json`。
-7. **赛事只有 ICPC/CCPC 真实数据**：`cpcfinder.com` 公开接口；CF/AtCoder/LC/洛谷赛程尚未接入，对应筛选为空态，不再展示示例赛事。
+7. **赛事覆盖 ICPC/CCPC + CF + AtCoder**：LC/洛谷赛程需登录态，对应筛选为空态；不再展示示例赛事。
 8. **好友榜 / 题单订阅 / 补题为空态**：无对应数据源，页面显示「暂无」；接入后端后再展示真实数据。
 9. **外链跳转依赖系统浏览器**：题目/赛事按钮通过 `viewData` 打开链接，设备无浏览器或链接失效时会提示失败。
 10. **提醒依赖系统授权**：首次开启会弹通知授权；拒绝后开关回退并提示，未做独立权限引导页。
