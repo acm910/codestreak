@@ -40,8 +40,8 @@ $hvigor = 'D:\develop\harmony\DevEco Studio\tools\hvigor\bin\hvigorw.js'
 | P-04 统计榜单 | ✅ | 用户卡、热力图、难度分布、徽章、排行榜、设置行 |
 | 全局框架 | ✅ | AppBar + 四 Tab（保留各页状态）、Toast、打卡庆祝遮罩 |
 | RDB 持久化 | ✅ | `data/db`：5 张核心表（user / check_in / problem / contest / app_setting）、首启种子灌库、打卡落库与启动回读 |
-| 单元测试 | ✅ | hypium 本地单测 **24 条全通过**（难度归一化 / 日期周数 / 打卡状态机），行覆盖 67.8%、分支 80.95% |
-| 平台同步 | ⏳ | 下一步：CF/AtCoder/洛谷/LC 适配器（见 `docs/04-技术设计/07`） |
+| 单元测试 | ✅ | hypium 本地单测 **30 条全通过**（难度归一化 / 日期周数 / 打卡状态机 / CF 响应映射），行覆盖 76.19%、分支 76.32% |
+| 平台同步 | 🟡 | Codeforces 响应解析与契约测试已完成；HTTP 调用、落库与其余三平台待做（见 `docs/04-技术设计/07`） |
 | 通知提醒 | ⏳ | 下一步：`reminderAgentManager` 21:30 与赛前 15 分钟 |
 
 ## 目录结构
