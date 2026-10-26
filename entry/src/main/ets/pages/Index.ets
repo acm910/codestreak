@@ -37,6 +37,7 @@ struct Index {
   @Local cfHandle: string = '';
   @Local acHandle: string = '';
   @Local lgUid: string = '';
+  @Local lcHandle: string = '';
   @Local showBind: boolean = false;
   @Local handleDraft: string = '';
   @Local bindPlatform: string = 'CF';
@@ -105,6 +106,7 @@ struct Index {
       this.cfHandle = await SyncService.loadHandle();
       this.acHandle = await SyncService.loadAtCoderHandle();
       this.lgUid = await SyncService.loadLuoguUid();
+      this.lcHandle = await SyncService.loadLeetCodeHandle();
       const retried: string = await SyncService.retryIfDue();
       this.lastSyncText = await SyncService.loadLastSync();
       this.refreshSettingsSubtitle();
@@ -226,11 +228,12 @@ struct Index {
   }
 
   private async syncNow(): Promise<void> {
-    if (this.cfHandle.length === 0 && this.acHandle.length === 0 && this.lgUid.length === 0) {
+    if (this.cfHandle.length === 0 && this.acHandle.length === 0 &&
+      this.lgUid.length === 0 && this.lcHandle.length === 0) {
       this.handleDraft = '';
       this.bindPlatform = 'CF';
       this.showBind = true;
-      this.showToast('请先绑定 Codeforces、AtCoder 或洛谷账号');
+      this.showToast('请先绑定至少一个 OJ 账号');
       return;
     }
     this.showToast('正在同步…');
@@ -264,6 +267,15 @@ struct Index {
         await SyncService.scheduleRetry('LG', this.lgUid);
       }
     }
+    if (this.lcHandle.length > 0) {
+      const lc: SyncOutcome = await SyncService.syncLeetCode(this.lcHandle);
+      messages.push(lc.ok ? lc.message : `LeetCode 失败：${lc.message}`);
+      if (lc.ok && lc.dailyAc > 0) {
+        dailyAc = lc.dailyAc;
+      } else if (!lc.ok) {
+        await SyncService.scheduleRetry('LC', this.lcHandle);
+      }
+    }
     this.lastSyncText = await SyncService.loadLastSync();
     this.refreshSettingsSubtitle();
     this.showToast(messages.join('；'));
@@ -293,8 +305,10 @@ struct Index {
         this.showToast('请输入 Codeforces handle');
       } else if (this.bindPlatform === 'AC') {
         this.showToast('请输入 AtCoder 用户名');
-      } else {
+      } else if (this.bindPlatform === 'LG') {
         this.showToast('请输入洛谷 UID');
+      } else {
+        this.showToast('请输入 LeetCode 用户名');
       }
       return;
     }
@@ -304,9 +318,12 @@ struct Index {
     } else if (this.bindPlatform === 'AC') {
       await SyncService.saveAtCoderHandle(handle);
       this.acHandle = handle;
-    } else {
+    } else if (this.bindPlatform === 'LG') {
       await SyncService.saveLuoguUid(handle);
       this.lgUid = handle;
+    } else {
+      await SyncService.saveLeetCodeHandle(handle);
+      this.lcHandle = handle;
     }
     this.showBind = false;
     await this.syncNow();
@@ -467,7 +484,8 @@ struct Index {
     Column({ space: CsSpace.SM }) {
       Row() {
         Text(this.bindPlatform === 'CF' ? '绑定 Codeforces 账号'
-          : (this.bindPlatform === 'AC' ? '绑定 AtCoder 账号' : '绑定洛谷账号'))
+          : (this.bindPlatform === 'AC' ? '绑定 AtCoder 账号'
+            : (this.bindPlatform === 'LG' ? '绑定洛谷账号' : '绑定 LeetCode 账号')))
           .fontSize(CsFont.H3)
           .fontWeight(FontWeight.Bold)
           .fontColor(CsColor.TEXT_PRIMARY)
@@ -521,6 +539,19 @@ struct Index {
             this.bindPlatform = 'LG';
             this.handleDraft = this.lgUid;
           })
+        Text('LeetCode')
+          .fontSize(CsFont.LABEL_SM)
+          .fontColor(this.bindPlatform === 'LC' ? CsColor.PRIMARY_ON : CsColor.TEXT_SECONDARY)
+          .fontWeight(this.bindPlatform === 'LC' ? FontWeight.Bold : FontWeight.Normal)
+          .textAlign(TextAlign.Center)
+          .layoutWeight(1)
+          .height(32)
+          .borderRadius(CsRadius.LG)
+          .backgroundColor(this.bindPlatform === 'LC' ? CsColor.PRIMARY_CONTAINER : CsColor.SURFACE_CONTAINER)
+          .onClick(() => {
+            this.bindPlatform = 'LC';
+            this.handleDraft = this.lcHandle;
+          })
       }
       .width('100%')
 
@@ -532,7 +563,8 @@ struct Index {
       TextInput({
         text: this.handleDraft,
         placeholder: this.bindPlatform === 'CF' ? 'handle，例如 tourist'
-          : (this.bindPlatform === 'AC' ? '用户名，例如 chokudai' : 'UID，例如 123456')
+          : (this.bindPlatform === 'AC' ? '用户名，例如 chokudai'
+            : (this.bindPlatform === 'LG' ? 'UID，例如 123456' : '用户名，例如 leetcode'))
       })
         .fontSize(CsFont.LABEL)
         .fontColor(CsColor.TEXT_PRIMARY)
@@ -657,6 +689,9 @@ struct Index {
                   this.handleDraft = '';
                 } else if (this.lgUid.length === 0) {
                   this.bindPlatform = 'LG';
+                  this.handleDraft = '';
+                } else if (this.lcHandle.length === 0) {
+                  this.bindPlatform = 'LC';
                   this.handleDraft = '';
                 } else {
                   this.bindPlatform = 'CF';

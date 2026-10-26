@@ -10,6 +10,7 @@ import heatmapTest from './Heatmap.test';
 import reminderPlanTest from './ReminderPlan.test';
 import luoguMapperTest from './LuoguMapper.test';
 import retryQueueTest from './RetryQueue.test';
+import leetCodeMapperTest from './LeetCodeMapper.test';
 
 export default function testsuite() {
   localUnitTest();
@@ -24,4 +25,5 @@ export default function testsuite() {
   reminderPlanTest();
   luoguMapperTest();
   retryQueueTest();
+  leetCodeMapperTest();
 }

@@ -5,6 +5,7 @@ import { DatabaseHelper } from './db/DatabaseHelper';
 import { AtCoderAdapter } from './remote/AtCoderAdapter';
 import { AtCoderMapper } from './remote/AtCoderMapper';
 import { CodeforcesAdapter } from './remote/CodeforcesAdapter';
+import { LeetCodeAdapter } from './remote/LeetCodeAdapter';
 import { LuoguAdapter } from './remote/LuoguAdapter';
 
 /** 一次同步的结果，供 UI 提示与埋点 */
@@ -25,6 +26,7 @@ export class SyncService {
   static readonly AC_HANDLE_KEY: string = 'ac_handle';
   static readonly AC_CURSOR_KEY: string = 'ac_cursor';
   static readonly LG_UID_KEY: string = 'luogu_uid';
+  static readonly LC_HANDLE_KEY: string = 'lc_handle';
   static readonly LAST_SYNC_KEY: string = 'last_sync_at';
   static readonly RETRY_KEY: string = 'sync_retry';
 
@@ -114,6 +116,23 @@ export class SyncService {
     return outcome;
   }
 
+  static async syncLeetCode(handle: string): Promise<SyncOutcome> {
+    const startedAt: number = Date.now();
+    const result: MapperResult = await LeetCodeAdapter.fetchRecentAc(handle);
+    if (!result.ok) {
+      await DatabaseHelper.logSyncJob('LC', 'failed', 0, 0, result.message, startedAt);
+      const failed: SyncOutcome = { ok: false, message: result.message, fetched: 0, inserted: 0, dailyAc: 0 };
+      return failed;
+    }
+    const submissions: SyncSubmission[] = result.submissions;
+    const inserted: number = await DatabaseHelper.upsertSubmissions(submissions);
+    const dailyAc: number = await DatabaseHelper.countDailyAc(DateUtil.todayKey());
+    await DatabaseHelper.logSyncJob('LC', 'success', submissions.length, inserted, '', startedAt);
+    const outcome: SyncOutcome = await SyncService.finish('success', submissions.length, inserted, dailyAc, startedAt);
+    outcome.message = `LeetCode：拉取 ${submissions.length} 条，新增 ${inserted} 条`;
+    return outcome;
+  }
+
   static async loadHandle(): Promise<string> {
     return DatabaseHelper.loadSetting(SyncService.CF_HANDLE_KEY);
   }
@@ -153,6 +172,8 @@ export class SyncService {
       outcome = await SyncService.syncAtCoder(entry.target);
     } else if (entry.platform === 'LG') {
       outcome = await SyncService.syncLuogu(entry.target);
+    } else if (entry.platform === 'LC') {
+      outcome = await SyncService.syncLeetCode(entry.target);
     } else {
       await SyncService.clearRetry();
       return '';
@@ -172,6 +193,14 @@ export class SyncService {
 
   static async loadLuoguUid(): Promise<string> {
     return DatabaseHelper.loadSetting(SyncService.LG_UID_KEY);
+  }
+
+  static async loadLeetCodeHandle(): Promise<string> {
+    return DatabaseHelper.loadSetting(SyncService.LC_HANDLE_KEY);
+  }
+
+  static async saveLeetCodeHandle(handle: string): Promise<void> {
+    await DatabaseHelper.saveSetting(SyncService.LC_HANDLE_KEY, handle.trim());
   }
   static async saveLuoguUid(uid: string): Promise<void> {
     await DatabaseHelper.saveSetting(SyncService.LG_UID_KEY, uid.trim());
