@@ -27,6 +27,8 @@ export struct StatsView {
   @Param badges: BadgeItem[] = [];
   @Param leaders: LeaderRow[] = [];
   @Param settings: SettingRow[] = [];
+  @Event onBindPlatform: () => void = () => {
+  };
 
   @Local leaderTab: number = 0;
   @Local hint: string = '';
@@ -184,6 +186,13 @@ export struct StatsView {
               row: row,
               onToggle: (id: string, enabled: boolean) => {
                 this.hint = enabled ? '已开启每日 21:30 提醒' : '已关闭每日提醒';
+              },
+              onTap: (id: string) => {
+                if (id === 's1') {
+                  this.onBindPlatform();
+                } else {
+                  this.hint = '该能力将在 v1.1 开放';
+                }
               }
             })
           }, (row: SettingRow) => row.id)

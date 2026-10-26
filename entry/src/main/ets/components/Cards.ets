@@ -845,6 +845,8 @@ export struct CsSettingsRow {
   @Param row: SettingRow = EMPTY_SETTING;
   @Event onToggle: (id: string, enabled: boolean) => void = () => {
   };
+  @Event onTap: (id: string) => void = () => {
+  };
 
   build() {
     Row({ space: CsSpace.MD }) {
@@ -885,5 +887,10 @@ export struct CsSettingsRow {
     .padding(CsSpace.MD)
     .borderRadius(CsRadius.LG)
     .backgroundColor(CsColor.SURFACE_HIGH)
+    .onClick(() => {
+      if (this.row.kind === 'link') {
+        this.onTap(this.row.id);
+      }
+    })
   }
 }

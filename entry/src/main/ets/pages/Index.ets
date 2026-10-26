@@ -3,6 +3,7 @@ import { Glyph, TabSpec } from '../constants/AppConfig';
 import { CsColor, CsFont, CsRadius, CsSpace, withAlpha } from '../constants/DesignTokens';
 import { SeedData } from '../data/SeedData';
 import { DatabaseHelper } from '../data/db/DatabaseHelper';
+import { SyncOutcome, SyncService } from '../data/SyncService';
 import { CheckInResult, CheckInService } from '../domain/CheckInService';
 import { DateUtil } from '../utils/DateUtil';
 import {
@@ -29,6 +30,9 @@ struct Index {
   @Local totalAc: number = 384;
   @Local totalDays: number = 152;
   @Local makeupCredits: number = 2;
+  @Local cfHandle: string = '';
+  @Local showBind: boolean = false;
+  @Local handleDraft: string = '';
 
   private target: TargetCardData = SeedData.targetCard();
   private challenge: ChallengeCardData = SeedData.challengeCard();
@@ -90,9 +94,49 @@ struct Index {
         this.challengeSolved = row.targetProgress >= 2;
         this.celebrated = row.targetProgress >= row.goal;
       }
+      this.cfHandle = await SyncService.loadHandle();
     } catch (err) {
       console.error(`Database bootstrap failed: ${JSON.stringify(err)}`);
     }
+  }
+
+  private async syncNow(): Promise<void> {
+    if (this.cfHandle.length === 0) {
+      this.handleDraft = '';
+      this.showBind = true;
+      this.showToast('请先绑定 Codeforces 账号');
+      return;
+    }
+    this.showToast('正在同步 Codeforces 数据…');
+    const outcome: SyncOutcome = await SyncService.syncCodeforces(this.cfHandle);
+    this.showToast(outcome.message);
+    if (outcome.ok && outcome.dailyAc > 0) {
+      const next: TodaySnapshot = {
+        status: this.snapshot.status,
+        targetProgress: this.snapshot.targetProgress,
+        dailyTarget: this.snapshot.dailyTarget,
+        streakDays: this.snapshot.streakDays,
+        longestStreak: this.snapshot.longestStreak,
+        todayAcCount: outcome.dailyAc,
+        focusMinutes: this.snapshot.focusMinutes,
+        beatPercent: this.snapshot.beatPercent,
+        weekNumber: this.snapshot.weekNumber
+      };
+      this.snapshot = next;
+      this.persistCheckIn();
+    }
+  }
+
+  private async saveHandleAndSync(): Promise<void> {
+    const handle: string = this.handleDraft.trim();
+    if (handle.length === 0) {
+      this.showToast('请输入 Codeforces handle');
+      return;
+    }
+    await SyncService.saveHandle(handle);
+    this.cfHandle = handle;
+    this.showBind = false;
+    await this.syncNow();
   }
 
   private persistCheckIn(): void {
@@ -245,13 +289,80 @@ struct Index {
     .alignItems(HorizontalAlign.Center)
   }
 
+  @Builder
+  bindCard() {
+    Column({ space: CsSpace.SM }) {
+      Row() {
+        Text('绑定 Codeforces 账号')
+          .fontSize(CsFont.H3)
+          .fontWeight(FontWeight.Bold)
+          .fontColor(CsColor.TEXT_PRIMARY)
+        Text(Glyph.CLOSE)
+          .fontSize(CsFont.H3)
+          .fontColor(CsColor.TEXT_TERTIARY)
+          .onClick(() => {
+            this.showBind = false;
+          })
+      }
+      .width('100%')
+      .justifyContent(FlexAlign.SpaceBetween)
+
+      Text('仅读取你的公开提交记录，用于计算今日 AC 与难度分布，不写入、不代理登录。')
+        .fontSize(CsFont.BODY_SM)
+        .fontColor(CsColor.TEXT_SECONDARY)
+        .width('100%')
+
+      TextInput({ text: this.handleDraft, placeholder: 'handle，例如 tourist' })
+        .fontSize(CsFont.LABEL)
+        .fontColor(CsColor.TEXT_PRIMARY)
+        .placeholderColor(CsColor.TEXT_GHOST)
+        .height(44)
+        .borderRadius(CsRadius.LG)
+        .backgroundColor(CsColor.SURFACE_CONTAINER)
+        .onChange((value: string) => {
+          this.handleDraft = value;
+        })
+
+      Row({ space: CsSpace.SM }) {
+        Text('取消')
+          .fontSize(CsFont.LABEL)
+          .fontColor(CsColor.TEXT_PRIMARY)
+          .textAlign(TextAlign.Center)
+          .layoutWeight(1)
+          .height(40)
+          .borderRadius(CsRadius.LG)
+          .backgroundColor(CsColor.SURFACE_CONTAINER)
+          .onClick(() => {
+            this.showBind = false;
+          })
+        Text('保存并同步')
+          .fontSize(CsFont.LABEL)
+          .fontWeight(FontWeight.Bold)
+          .fontColor(CsColor.PRIMARY_ON)
+          .textAlign(TextAlign.Center)
+          .layoutWeight(1)
+          .height(40)
+          .borderRadius(CsRadius.LG)
+          .backgroundColor(CsColor.PRIMARY_CONTAINER)
+          .onClick(() => {
+            this.saveHandleAndSync();
+          })
+      }
+      .width('100%')
+    }
+    .width('86%')
+    .padding(CsSpace.GUTTER)
+    .borderRadius(CsRadius.XL)
+    .backgroundColor(CsColor.SURFACE_HIGH)
+  }
+
   build() {
     Stack({ alignContent: Alignment.Center }) {
       Column() {
         CsAppBar({
           title: TabSpec.TITLES[this.activeTab],
           onSync: () => {
-            this.showToast('正在同步四个平台数据…');
+            this.syncNow();
           },
           onAvatar: () => {
             this.activeTab = TabIndex.STATS;
@@ -295,7 +406,11 @@ struct Index {
               difficultyRows: this.difficultyRows,
               badges: this.badges,
               leaders: this.leaders,
-              settings: this.settings
+              settings: this.settings,
+              onBindPlatform: () => {
+                this.handleDraft = this.cfHandle;
+                this.showBind = true;
+              }
             })
           }
           .tabBar(this.tabBarItem(TabIndex.STATS))
@@ -341,6 +456,23 @@ struct Index {
           })
 
           this.celebration()
+        }
+        .width('100%')
+        .height('100%')
+      }
+
+      if (this.showBind) {
+        Stack({ alignContent: Alignment.Center }) {
+          Column() {
+          }
+          .width('100%')
+          .height('100%')
+          .backgroundColor(withAlpha(CsColor.SURFACE_LOWEST, 0.8))
+          .onClick(() => {
+            this.showBind = false;
+          })
+
+          this.bindCard()
         }
         .width('100%')
         .height('100%')
