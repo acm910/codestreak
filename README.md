@@ -33,14 +33,14 @@ $hvigor = 'D:\develop\harmony\DevEco Studio\tools\hvigor\bin\hvigorw.js'
 | --- | --- | --- |
 | 设计令牌 | ✅ | `constants/DesignTokens.ets` 与 `docs/02-设计规范/02` 一致（颜色/间距/圆角/字号） |
 | 数据模型 | ✅ | 枚举 + 实体接口（`model/`），字段对齐 `docs/04-技术设计/03` |
-| 种子数据 | ✅ | `data/SeedData.ets` 使用自洽数据集 v1（28/64/152/384、占比 22.1/29.2/33.9/11.7/3.1） |
+| 种子数据 | ✅ | `data/SeedData.ets` 仅保留题目/题单目录与文案；用户统计一律来自本地库，空即为空 |
 | P-01 今日打卡 | ✅ | 连续打卡主卡、周矩阵、核心推荐与竞赛挑战、打卡链路、庆祝弹层 |
-| P-02 题单矩阵 | ✅ | 双赛道、搜索、难度/平台筛选、精选题单横滑、题目行三态、导入条 |
-| P-03 比赛日历 | ✅ | 倒计时 HUD（每秒刷新）、补题率、周条、赛事筛选与卡片、补题打卡联动 |
-| P-04 统计榜单 | ✅ | 用户卡、热力图、难度分布、徽章、排行榜、设置行 |
+| P-03 比赛日历 | ✅ | ICPC/CCPC + CF + AtCoder 真实赛程、周条、筛选；补题与倒计时在无数据时为空态 |
+| P-04 统计榜单 | ✅ | 用户卡、真实热力图/难度分布/徽章；好友榜无数据源时为空态 |
 | 全局框架 | ✅ | AppBar + 四 Tab（保留各页状态）、Toast、打卡庆祝遮罩 |
 | RDB 持久化 | ✅ | `data/db`（v2）：7 张表（user / check_in / problem / contest / app_setting / submission / sync_job）、首启种子灌库、打卡与提交落库、当日 AC 聚合 |
-| 单元测试 | ✅ | hypium 本地单测 **83 条全通过**（难度/日期/打卡/映射/同步策略/热力图/提醒/重试/真实统计/赛程/牛客解析），行覆盖 87.18%、分支 72.58% |
+| P-02 题单矩阵 | ✅ | 求职/竞赛双赛道完全分离（题单与题目各自过滤）、搜索语法、难度/平台多选（实心选中态）、题目行跳转 |
+| 单元测试 | ✅ | hypium 本地单测 **86 条全通过**（难度/日期/打卡/映射/同步策略/热力图/提醒/重试/统计/赛程/赛道），行覆盖 87.39%、分支 72.93% |
 | 平台同步 | 🟡 | **五平台（CF / AtCoder / 洛谷 / LeetCode / 牛客）**：节流 → HTTP/GraphQL/HTML → 映射 → 幂等落库；登录态经内置 WebView 获取 |
 | 登录授权 | ✅ | 内置 [WebLogin](entry/src/main/ets/pages/WebLogin.ets)：洛谷 / 牛客 / LC 登录后抓取 Cookie，再执行导入 |
 | 赛事与外链 | ✅ | ICPC/CCPC（[CPC Finder](https://cpcfinder.com/contest)）+ Codeforces + AtCoder 真实赛程；题目与赛事按钮跳转系统浏览器 |
@@ -59,7 +59,7 @@ entry/src/main/ets/
 │   ├── Common.ets         C-01 AppBar、C-03 区块标题、C-08 指标块、C-13/C-14 徽标、C-15 进度条、空态
 │   ├── Cards.ets          C-04 连续打卡卡（hero/hud）、C-06/C-07 目标卡、C-26 倒计时、C-27 补题率、C-29 比赛卡、C-30 补题卡、C-31 用户卡、C-36 设置行
 │   └── Visuals.ets        C-28 周条、C-32 热力图、C-33 难度分布、C-34 徽章、C-35 排行榜、C-40 骨架、今日战报
-├── domain/                CheckInService（打卡）、SyncPolicy（节流/退避）、ReminderPlan（提醒）、RetryQueue（失败重试）
+├── domain/                CheckInService、SyncPolicy、ReminderPlan、RetryQueue、StatsService、TrackFilter
 ├── model/                 Enums、Entities、SyncModels、ContestFeed
 ├── data/
 │   ├── SeedData.ets       自洽数据集 v1
