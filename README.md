@@ -40,8 +40,8 @@ $hvigor = 'D:\develop\harmony\DevEco Studio\tools\hvigor\bin\hvigorw.js'
 | P-04 统计榜单 | ✅ | 用户卡、热力图、难度分布、徽章、排行榜、设置行 |
 | 全局框架 | ✅ | AppBar + 四 Tab（保留各页状态）、Toast、打卡庆祝遮罩 |
 | RDB 持久化 | ✅ | `data/db`（v2）：7 张表（user / check_in / problem / contest / app_setting / submission / sync_job）、首启种子灌库、打卡与提交落库、当日 AC 聚合 |
-| 单元测试 | ✅ | hypium 本地单测 **61 条全通过**（难度/日期/打卡/四类映射/同步策略/热力图/提醒/重试），行覆盖 86.88%、分支 77.78% |
-| 平台同步 | 🟡 | **CF（真机已验证）、AtCoder、洛谷（代码完成）**：节流 → HTTP → 映射 → 幂等落库 → 当日 AC；LC 待做，失败自动重试 |
+| 单元测试 | ✅ | hypium 本地单测 **66 条全通过**（难度/日期/打卡/四类映射/同步策略/热力图/提醒/重试），行覆盖 87.44%、分支 76.36% |
+| 平台同步 | 🟡 | **四平台齐备（CF 真机已验证）**：节流 → HTTP/GraphQL → 映射 → 幂等落库 → 当日 AC；LC 需登录 Cookie，失败自动重试 |
 | 赛事与外链 | ✅ | ICPC/CCPC 赛程取自 [CPC Finder](https://cpcfinder.com/contest) 公开接口；题目与赛事按钮跳转系统浏览器 |
 | 数据可视化 | ✅ | 热力图按 `submission.local_day` 真实聚合近 16 周；无数据时回退示例 |
 | 通知提醒 | 🟡 | 每日 21:30 通过 `reminderAgentManager` 发布代理提醒，设置开关联动；待真机验证送达 |
@@ -65,11 +65,11 @@ entry/src/main/ets/
 │   ├── ContestFeedService.ets  ICPC/CCPC 赛程（CPC Finder → 比赛卡）
 │   ├── NotificationService.ets 每日 21:30 代理提醒（reminderAgentManager）
 │   ├── db/                DbSchema（DDL v2）、DatabaseHelper（初始化/种子/读写/聚合/设置）
-│   └── remote/            Codeforces / AtCoder / Luogu / Cpcfinder 适配器与映射
+│   └── remote/            Codeforces / AtCoder / Luogu / LeetCode / Cpcfinder 适配器与映射
 ├── constants/             DesignTokens、AppConfig（Tab 配置与图标字符）
 └── utils/                 DateUtil、Difficulty、Heatmap、LinkService
 
-entry/src/test/            hypium 单测：难度/日期/打卡/三平台映射/同步策略/热力图/提醒计划
+entry/src/test/            hypium 单测：难度/日期/打卡/四类映射/同步策略/热力图/提醒/重试
 ```
 
 ## 测试
@@ -86,16 +86,18 @@ $env:DEVECO_SDK_HOME = 'D:\develop\harmony\DevEco Studio\sdk'
 
 ## 已知限制
 
-1. **同步覆盖 CF / AtCoder / 洛谷**：设置 →「OJ 元数据同步管理」可分别绑定三个平台，AppBar 同步按钮串行拉取；**LC 尚未接入**，页面其余数据仍来自种子库。
-2. **洛谷为公开记录 + UID**：未做内置 WebView 授权，部分账号会返回 403 并降级手动；Cookie（若有）暂存明文设置项，后续迁入 Asset Store。
-3. **重试仅在启动时消费**：失败会落一条重试记录并按 1/5/15 分钟退避，应用不重启则不会自动重试；无后台常驻调度。
-4. **AtCoder 难度为估算值**：按题位字母映射（A→★1 … G→★5），未接 `problem-models.json`。
-5. **ICPC/CCPC 赛程来自第三方**：`cpcfinder.com` 公开接口，仅取今天及以后前 4 场，缺时长与报名状态；源不可用时回退本地种子。
-6. **外链跳转依赖系统浏览器**：题目/赛事按钮通过 `viewData` 打开链接，设备无浏览器或链接失效时会提示失败。
-7. **提醒依赖系统授权**：首次开启会弹通知授权；拒绝后开关回退并提示，未做独立权限引导页。
-8. **图标为字符占位**：待替换为 `SymbolGlyph` 或字体图标（设计规范见 `docs/02-设计规范/05`）。
-9. **真机回归未完成**：编译、打包、61 条单测、CF 同步与首次启动均已通过，但四页 UI、AtCoder/洛谷同步、赛程拉取与提醒送达尚未按用例逐条回归（对照 `docs/07-测试与质量/02`）。
-10. **签名缺失**：命令行产物为 unsigned HAP，安装前需配置签名。
+1. **同步覆盖四个平台**：设置 →「OJ 元数据同步管理」可分别绑定 CF / AtCoder / 洛谷 / LeetCode，AppBar 同步按钮串行拉取；失败按 1/5/15 分钟退避重试。
+2. **LC 需要登录态**：适配器会读取设置项 `lc_cookie`（目前无写入 UI），未注入时提示需要登录；后续补内置 WebView 授权。
+3. **洛谷为公开记录 + UID**：未做内置 WebView 授权，部分账号会返回 403 并降级手动；Cookie（若有）暂存明文设置项，后续迁入 Asset Store。
+4. **LC 难度为兜底值**：最近 AC 不含难度，统一按 ★3 计，后续按 titleSlug 补元数据。
+5. **重试仅在启动时消费**：失败会落一条重试记录并按 1/5/15 分钟退避，应用不重启则不会自动重试；无后台常驻调度。
+6. **AtCoder 难度为估算值**：按题位字母映射（A→★1 … G→★5），未接 `problem-models.json`。
+7. **ICPC/CCPC 赛程来自第三方**：`cpcfinder.com` 公开接口，仅取今天及以后前 4 场，缺时长与报名状态；源不可用时回退本地种子。
+8. **外链跳转依赖系统浏览器**：题目/赛事按钮通过 `viewData` 打开链接，设备无浏览器或链接失效时会提示失败。
+9. **提醒依赖系统授权**：首次开启会弹通知授权；拒绝后开关回退并提示，未做独立权限引导页。
+10. **图标为字符占位**：待替换为 `SymbolGlyph` 或字体图标（设计规范见 `docs/02-设计规范/05`）。
+11. **真机回归未完成**：编译、打包、66 条单测、CF 同步与首次启动均已通过，但四页 UI、AtCoder/洛谷/LC 同步、赛程拉取与提醒送达尚未按用例逐条回归（对照 `docs/07-测试与质量/02`）。
+12. **签名缺失**：命令行产物为 unsigned HAP，安装前需配置签名。
 
 ## 版本管理
 
