@@ -31,8 +31,11 @@ struct Index {
   @Local totalDays: number = 152;
   @Local makeupCredits: number = 2;
   @Local cfHandle: string = '';
+  @Local acHandle: string = '';
   @Local showBind: boolean = false;
   @Local handleDraft: string = '';
+  @Local bindPlatform: string = 'CF';
+  @Local lastSyncText: string = '';
 
   private target: TargetCardData = SeedData.targetCard();
   private challenge: ChallengeCardData = SeedData.challengeCard();
@@ -46,7 +49,7 @@ struct Index {
   private difficultyRows: DifficultyRow[] = SeedData.difficultyRows();
   private badges: BadgeItem[] = SeedData.badges();
   private leaders: LeaderRow[] = SeedData.leaderboard();
-  private settings: SettingRow[] = SeedData.settings();
+  @Local settings: SettingRow[] = SeedData.settings();
 
   aboutToAppear(): void {
     this.bootstrap();
@@ -95,29 +98,71 @@ struct Index {
         this.celebrated = row.targetProgress >= row.goal;
       }
       this.cfHandle = await SyncService.loadHandle();
+      this.acHandle = await SyncService.loadAtCoderHandle();
+      this.lastSyncText = await SyncService.loadLastSync();
+      this.refreshSettingsSubtitle();
     } catch (err) {
       console.error(`Database bootstrap failed: ${JSON.stringify(err)}`);
     }
   }
 
+  private refreshSettingsSubtitle(): void {
+    const next: SettingRow[] = [];
+    for (const row of this.settings) {
+      if (row.id === 's1') {
+        const subtitle: string = this.lastSyncText.length > 0
+          ? `上次同步: ${this.lastSyncText} · 手动触发`
+          : row.subtitle;
+        const updated: SettingRow = {
+          id: row.id, title: row.title, subtitle: subtitle,
+          glyph: row.glyph, kind: row.kind, enabled: row.enabled
+        };
+        next.push(updated);
+      } else {
+        next.push(row);
+      }
+    }
+    this.settings = next;
+  }
+
   private async syncNow(): Promise<void> {
-    if (this.cfHandle.length === 0) {
+    if (this.cfHandle.length === 0 && this.acHandle.length === 0) {
       this.handleDraft = '';
+      this.bindPlatform = 'CF';
       this.showBind = true;
-      this.showToast('请先绑定 Codeforces 账号');
+      this.showToast('请先绑定 Codeforces 或 AtCoder 账号');
       return;
     }
-    this.showToast('正在同步 Codeforces 数据…');
-    const outcome: SyncOutcome = await SyncService.syncCodeforces(this.cfHandle);
-    this.showToast(outcome.message);
-    if (outcome.ok && outcome.dailyAc > 0) {
+    this.showToast('正在同步…');
+    const messages: string[] = [];
+    let dailyAc: number = 0;
+
+    if (this.cfHandle.length > 0) {
+      const cf: SyncOutcome = await SyncService.syncCodeforces(this.cfHandle);
+      messages.push(cf.ok ? cf.message : `CF 失败：${cf.message}`);
+      if (cf.ok) {
+        dailyAc = cf.dailyAc;
+      }
+    }
+    if (this.acHandle.length > 0) {
+      const ac: SyncOutcome = await SyncService.syncAtCoder(this.acHandle);
+      messages.push(ac.ok ? ac.message : `AtCoder 失败：${ac.message}`);
+      if (ac.ok && ac.dailyAc > 0) {
+        dailyAc = ac.dailyAc;
+      }
+    }
+    this.lastSyncText = await SyncService.loadLastSync();
+    this.refreshSettingsSubtitle();
+    this.showToast(messages.join('；'));
+
+    if (dailyAc > 0) {
       const next: TodaySnapshot = {
         status: this.snapshot.status,
         targetProgress: this.snapshot.targetProgress,
         dailyTarget: this.snapshot.dailyTarget,
         streakDays: this.snapshot.streakDays,
         longestStreak: this.snapshot.longestStreak,
-        todayAcCount: outcome.dailyAc,
+        todayAcCount: dailyAc,
         focusMinutes: this.snapshot.focusMinutes,
         beatPercent: this.snapshot.beatPercent,
         weekNumber: this.snapshot.weekNumber
@@ -130,11 +175,16 @@ struct Index {
   private async saveHandleAndSync(): Promise<void> {
     const handle: string = this.handleDraft.trim();
     if (handle.length === 0) {
-      this.showToast('请输入 Codeforces handle');
+      this.showToast(this.bindPlatform === 'CF' ? '请输入 Codeforces handle' : '请输入 AtCoder 用户名');
       return;
     }
-    await SyncService.saveHandle(handle);
-    this.cfHandle = handle;
+    if (this.bindPlatform === 'CF') {
+      await SyncService.saveHandle(handle);
+      this.cfHandle = handle;
+    } else {
+      await SyncService.saveAtCoderHandle(handle);
+      this.acHandle = handle;
+    }
     this.showBind = false;
     await this.syncNow();
   }
@@ -293,7 +343,7 @@ struct Index {
   bindCard() {
     Column({ space: CsSpace.SM }) {
       Row() {
-        Text('绑定 Codeforces 账号')
+        Text(this.bindPlatform === 'CF' ? '绑定 Codeforces 账号' : '绑定 AtCoder 账号')
           .fontSize(CsFont.H3)
           .fontWeight(FontWeight.Bold)
           .fontColor(CsColor.TEXT_PRIMARY)
@@ -307,12 +357,45 @@ struct Index {
       .width('100%')
       .justifyContent(FlexAlign.SpaceBetween)
 
+      Row({ space: 6 }) {
+        Text('Codeforces')
+          .fontSize(CsFont.LABEL_SM)
+          .fontColor(this.bindPlatform === 'CF' ? CsColor.PRIMARY_ON : CsColor.TEXT_SECONDARY)
+          .fontWeight(this.bindPlatform === 'CF' ? FontWeight.Bold : FontWeight.Normal)
+          .textAlign(TextAlign.Center)
+          .layoutWeight(1)
+          .height(32)
+          .borderRadius(CsRadius.LG)
+          .backgroundColor(this.bindPlatform === 'CF' ? CsColor.PRIMARY_CONTAINER : CsColor.SURFACE_CONTAINER)
+          .onClick(() => {
+            this.bindPlatform = 'CF';
+            this.handleDraft = this.cfHandle;
+          })
+        Text('AtCoder')
+          .fontSize(CsFont.LABEL_SM)
+          .fontColor(this.bindPlatform === 'AC' ? CsColor.PRIMARY_ON : CsColor.TEXT_SECONDARY)
+          .fontWeight(this.bindPlatform === 'AC' ? FontWeight.Bold : FontWeight.Normal)
+          .textAlign(TextAlign.Center)
+          .layoutWeight(1)
+          .height(32)
+          .borderRadius(CsRadius.LG)
+          .backgroundColor(this.bindPlatform === 'AC' ? CsColor.PRIMARY_CONTAINER : CsColor.SURFACE_CONTAINER)
+          .onClick(() => {
+            this.bindPlatform = 'AC';
+            this.handleDraft = this.acHandle;
+          })
+      }
+      .width('100%')
+
       Text('仅读取你的公开提交记录，用于计算今日 AC 与难度分布，不写入、不代理登录。')
         .fontSize(CsFont.BODY_SM)
         .fontColor(CsColor.TEXT_SECONDARY)
         .width('100%')
 
-      TextInput({ text: this.handleDraft, placeholder: 'handle，例如 tourist' })
+      TextInput({
+        text: this.handleDraft,
+        placeholder: this.bindPlatform === 'CF' ? 'handle，例如 tourist' : '用户名，例如 chokudai'
+      })
         .fontSize(CsFont.LABEL)
         .fontColor(CsColor.TEXT_PRIMARY)
         .placeholderColor(CsColor.TEXT_GHOST)
@@ -408,7 +491,8 @@ struct Index {
               leaders: this.leaders,
               settings: this.settings,
               onBindPlatform: () => {
-                this.handleDraft = this.cfHandle;
+                this.bindPlatform = this.cfHandle.length === 0 ? 'CF' : (this.acHandle.length === 0 ? 'AC' : 'CF');
+                this.handleDraft = this.bindPlatform === 'CF' ? this.cfHandle : this.acHandle;
                 this.showBind = true;
               }
             })
