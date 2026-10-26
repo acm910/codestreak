@@ -50,7 +50,8 @@ export class SeedData {
       nativeLabel: 'Medium',
       tags: ['链表', '双指针', '高频面试 TOP100'],
       status: SolveStatus.TODO,
-      sourceText: ''
+      sourceText: '',
+      url: 'https://leetcode.cn/problems/reverse-linked-list/'
     };
     const data: TargetCardData = { problem: problem, rewardText: '+25 EXP' };
     return data;
@@ -68,7 +69,8 @@ export class SeedData {
       nativeLabel: 'Easy',
       tags: ['math', 'games', 'Div.3 A题'],
       status: SolveStatus.TODO,
-      sourceText: 'RATING: 900'
+      sourceText: 'RATING: 900',
+      url: 'https://codeforces.com/problemset/problem/1899/A'
     };
     const data: ChallengeCardData = { problem: problem, ratingText: 'RATING: 900' };
     return data;
@@ -119,18 +121,21 @@ export class SeedData {
       {
         id: 'p-lc-15', platform: PlatformCode.LC, platformName: 'LeetCode', code: 'LC-15',
         title: '三数之和 (3Sum)', titleEn: '', difficulty: 3, nativeLabel: 'Medium',
-        tags: ['双指针', '排序'], status: SolveStatus.SOLVED, sourceText: ''
+        tags: ['双指针', '排序'], status: SolveStatus.SOLVED, sourceText: '',
+        url: 'https://leetcode.cn/problems/3sum/'
       },
       {
         id: 'p-cf-1352c', platform: PlatformCode.CF, platformName: 'Codeforces', code: 'CF-1352C',
         title: 'K-th Not Divisible by n', titleEn: '', difficulty: 2, nativeLabel: '(1200)',
-        tags: ['二分查找', '数学'], status: SolveStatus.DOING, sourceText: 'Round #640 (Div. 4)'
+        tags: ['二分查找', '数学'], status: SolveStatus.DOING, sourceText: 'Round #640 (Div. 4)',
+        url: 'https://codeforces.com/problemset/problem/1352/C'
       },
       {
         id: 'p-lg-p3372', platform: PlatformCode.LG, platformName: '洛谷', code: 'LG-P3372',
         title: '【模板】线段树 1', titleEn: '', difficulty: 3,
         nativeLabel: '普及+/提高',
-        tags: ['数据结构', '线段树'], status: SolveStatus.TODO, sourceText: ''
+        tags: ['数据结构', '线段树'], status: SolveStatus.TODO, sourceText: '',
+        url: 'https://www.luogu.com.cn/problem/P3372'
       }
     ];
     return list;
@@ -145,7 +150,8 @@ export class SeedData {
         timeText: '周日 09:00 - 14:00', durationText: '300分钟',
         status: ContestStatus.REGISTERING, statusText: '报名中',
         accent: CsColor.PRIMARY_CONTAINER, footerText: '队伍状态：主力队已绑定 (3/3人)',
-        actionText: '报名详情', secondaryText: '一键提醒队友', pulsing: true
+        actionText: '报名详情', secondaryText: '一键提醒队友', pulsing: true,
+        url: 'https://icpc.global/', isCollegiate: true
       },
       {
         id: 'ct-ccpc', platform: PlatformCode.AC, platformLabel: 'CCPC 分站赛',
@@ -153,7 +159,8 @@ export class SeedData {
         timeText: '06-11 09:00', durationText: '300分钟',
         status: ContestStatus.PREPARING, statusText: '备赛中',
         accent: CsColor.SECONDARY_CONTAINER, footerText: '规则：ICPC 赛制 • 封榜 60 分钟',
-        actionText: '竞赛官网', secondaryText: '同步日程', pulsing: false
+        actionText: '竞赛官网', secondaryText: '同步日程', pulsing: false,
+        url: 'https://ccpc.io/', isCollegiate: true
       },
       {
         id: 'ct-lc', platform: PlatformCode.LC, platformLabel: 'LeetCode',
@@ -161,7 +168,8 @@ export class SeedData {
         timeText: '周日 10:30 - 12:00', durationText: '90分钟',
         status: ContestStatus.UPCOMING, statusText: '未开始',
         accent: '', footerText: '已有 14,290 名选手报名',
-        actionText: '报名链接', secondaryText: '', pulsing: false
+        actionText: '报名链接', secondaryText: '', pulsing: false,
+        url: 'https://leetcode.cn/contest/', isCollegiate: false
       },
       {
         id: 'ct-cf', platform: PlatformCode.CF, platformLabel: 'Codeforces',
@@ -169,7 +177,8 @@ export class SeedData {
         timeText: '下周二 22:35', durationText: '120分钟',
         status: ContestStatus.UPCOMING, statusText: '未开始',
         accent: '', footerText: '距离注册通道关闭还有 2 天',
-        actionText: '前往CF', secondaryText: '', pulsing: false
+        actionText: '前往CF', secondaryText: '', pulsing: false,
+        url: 'https://codeforces.com/contests', isCollegiate: false
       },
       {
         id: 'ct-ac', platform: PlatformCode.AC, platformLabel: 'AtCoder',
@@ -177,7 +186,8 @@ export class SeedData {
         timeText: '今日 20:00', durationText: '100分钟',
         status: ContestStatus.UPCOMING, statusText: '未开始',
         accent: '', footerText: 'Rated for ≤ 1999',
-        actionText: '报名竞赛', secondaryText: '', pulsing: false
+        actionText: '报名竞赛', secondaryText: '', pulsing: false,
+        url: 'https://atcoder.jp/contests/', isCollegiate: false
       },
       {
         id: 'ct-lg', platform: PlatformCode.LG, platformLabel: '洛谷',
@@ -185,7 +195,8 @@ export class SeedData {
         timeText: '周日 14:00', durationText: '240分钟',
         status: ContestStatus.UPCOMING, statusText: '未开始',
         accent: '', footerText: '难度跨度 普及+/提高至省选',
-        actionText: '进入比赛', secondaryText: '', pulsing: false
+        actionText: '进入比赛', secondaryText: '', pulsing: false,
+        url: 'https://www.luogu.com.cn/contest/list', isCollegiate: false
       }
     ];
     return list;

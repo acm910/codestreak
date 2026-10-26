@@ -9,13 +9,13 @@ import { CsDifficultyBadge, CsPlatformBadge, CsProgressBar } from './Common';
 /** 兜底数据：组件参数始终非空，避免 build 根节点出现条件分支 */
 const EMPTY_PROBLEM: Problem = {
   id: '', platform: PlatformCode.LC, platformName: '', code: '', title: '', titleEn: '',
-  difficulty: 3, nativeLabel: '', tags: [], status: SolveStatus.TODO, sourceText: ''
+  difficulty: 3, nativeLabel: '', tags: [], status: SolveStatus.TODO, sourceText: '', url: ''
 };
 const EMPTY_TARGET: TargetCardData = { problem: EMPTY_PROBLEM, rewardText: '' };
 const EMPTY_CONTEST: ContestItem = {
   id: '', platform: PlatformCode.LC, platformLabel: '', name: '', timeText: '', durationText: '',
   status: ContestStatus.UPCOMING, statusText: '', accent: '', footerText: '', actionText: '',
-  secondaryText: '', pulsing: false
+  secondaryText: '', pulsing: false, url: '', isCollegiate: false
 };
 const EMPTY_TASK: UpsolveTask = { contestName: '', resultText: '', percent: 0, problems: [] };
 const EMPTY_SETTING: SettingRow = {
@@ -540,7 +540,7 @@ export struct CsUpsolveGauge {
 @ComponentV2
 export struct CsContestCard {
   @Param contest: ContestItem = EMPTY_CONTEST;
-  @Event onPrimary: () => void = () => {
+  @Event onPrimary: (url: string) => void = () => {
   };
   @Event onSecondary: () => void = () => {
   };
@@ -607,7 +607,7 @@ export struct CsContestCard {
               .borderRadius(CsRadius.SM)
               .backgroundColor(this.contest.status === ContestStatus.REGISTERING
                 ? CsColor.PRIMARY_CONTAINER : CsColor.SURFACE_HIGHEST)
-              .onClick(() => this.onPrimary())
+              .onClick(() => this.onPrimary(this.contest.url))
           }
         }
         .width('100%')

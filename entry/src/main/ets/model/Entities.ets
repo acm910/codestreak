@@ -18,6 +18,8 @@ export interface Problem {
   status: SolveStatus;
   /** 附加说明：题目来源比赛等 */
   sourceText: string;
+  /** 题目外链（跳转题库用） */
+  url: string;
 }
 
 /** 官方精选题单卡（C-23） */
@@ -51,6 +53,10 @@ export interface ContestItem {
   secondaryText: string;
   /** 是否带脉冲点（进行中/报名中） */
   pulsing: boolean;
+  /** 赛事外链（报名/榜单/官网） */
+  url: string;
+  /** 是否高校赛（ICPC/CCPC），用于筛选分组 */
+  isCollegiate: boolean;
 }
 
 /** 补题题目行（C-30） */

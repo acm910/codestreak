@@ -11,6 +11,8 @@ export struct ContestView {
   @Param contests: ContestItem[] = [];
   @Require @Param task: UpsolveTask;
   @Param days: WeekStripDay[] = [];
+  @Event onOpenUrl: (url: string) => void = () => {
+  };
 
   @Local filterIndex: number = 0;
   @Local percent: number = 75;
@@ -76,9 +78,16 @@ export struct ContestView {
     }
     const result: ContestItem[] = [];
     for (const item of this.contests) {
-      if (this.filterIndex === 1 && (item.id === 'ct-icpc' || item.id === 'ct-ccpc')) {
-        result.push(item);
-      } else if (this.filterIndex === 2 && item.platform === PlatformCode.CF) {
+      if (this.filterIndex === 1) {
+        if (item.isCollegiate) {
+          result.push(item);
+        }
+        continue;
+      }
+      if (item.isCollegiate) {
+        continue;
+      }
+      if (this.filterIndex === 2 && item.platform === PlatformCode.CF) {
         result.push(item);
       } else if (this.filterIndex === 3 && item.platform === PlatformCode.LC) {
         result.push(item);
@@ -156,8 +165,8 @@ export struct ContestView {
         ForEach(this.filteredContests(), (item: ContestItem) => {
           CsContestCard({
             contest: item,
-            onPrimary: () => {
-              this.hint = item.status === ContestStatus.REGISTERING ? '已提交报名确认' : '已打开赛事页面';
+            onPrimary: (url: string) => {
+              this.onOpenUrl(url);
             },
             onSecondary: () => {
               this.hint = '已同步赛程至系统日历';

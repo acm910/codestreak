@@ -5,6 +5,7 @@ import checkInServiceTest from './CheckInService.test';
 import codeforcesMapperTest from './CodeforcesMapper.test';
 import syncPolicyTest from './SyncPolicy.test';
 import atCoderMapperTest from './AtCoderMapper.test';
+import cpcfinderMapperTest from './CpcfinderMapper.test';
 
 export default function testsuite() {
   localUnitTest();
@@ -14,4 +15,5 @@ export default function testsuite() {
   codeforcesMapperTest();
   syncPolicyTest();
   atCoderMapperTest();
+  cpcfinderMapperTest();
 }

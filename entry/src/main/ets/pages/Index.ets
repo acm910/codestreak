@@ -4,8 +4,10 @@ import { CsColor, CsFont, CsRadius, CsSpace, withAlpha } from '../constants/Desi
 import { SeedData } from '../data/SeedData';
 import { DatabaseHelper } from '../data/db/DatabaseHelper';
 import { SyncOutcome, SyncService } from '../data/SyncService';
+import { ContestFeedService } from '../data/ContestFeedService';
 import { CheckInResult, CheckInService } from '../domain/CheckInService';
 import { DateUtil } from '../utils/DateUtil';
+import { LinkService } from '../utils/LinkService';
 import {
   BadgeItem, ChallengeCardData, CollectionCard, ContestItem, DifficultyRow, LeaderRow, Problem,
   SettingRow, TargetCardData, TodaySnapshot, UpsolveTask, WeekCell, WeekStripDay
@@ -42,7 +44,6 @@ struct Index {
   private cells: WeekCell[] = SeedData.weekCells();
   private collections: CollectionCard[] = SeedData.collections();
   private problems: Problem[] = SeedData.matrixProblems();
-  private contests: ContestItem[] = SeedData.contests();
   private task: UpsolveTask = SeedData.upsolve();
   private weekDays: WeekStripDay[] = SeedData.weekStrip();
   private heatmap: number[] = SeedData.heatmap();
@@ -50,6 +51,7 @@ struct Index {
   private badges: BadgeItem[] = SeedData.badges();
   private leaders: LeaderRow[] = SeedData.leaderboard();
   @Local settings: SettingRow[] = SeedData.settings();
+  @Local contests: ContestItem[] = SeedData.contests();
 
   aboutToAppear(): void {
     this.bootstrap();
@@ -101,8 +103,42 @@ struct Index {
       this.acHandle = await SyncService.loadAtCoderHandle();
       this.lastSyncText = await SyncService.loadLastSync();
       this.refreshSettingsSubtitle();
+      await this.loadContestFeed();
     } catch (err) {
       console.error(`Database bootstrap failed: ${JSON.stringify(err)}`);
+    }
+  }
+
+  private async loadContestFeed(): Promise<void> {
+    try {
+      const feed: ContestItem[] = await ContestFeedService.loadUpcoming(4);
+      if (feed.length === 0) {
+        return;
+      }
+      const merged: ContestItem[] = [];
+      for (const item of feed) {
+        merged.push(item);
+      }
+      for (const item of SeedData.contests()) {
+        if (!item.isCollegiate) {
+          merged.push(item);
+        }
+      }
+      this.contests = merged;
+    } catch (err) {
+      console.error(`Contest feed failed: ${JSON.stringify(err)}`);
+    }
+  }
+
+  private async openUrl(url: string): Promise<void> {
+    if (url.length === 0) {
+      this.showToast('该条目暂未配置链接');
+      return;
+    }
+    const context: common.UIAbilityContext = getContext(this) as common.UIAbilityContext;
+    const opened: boolean = await LinkService.open(context, url);
+    if (!opened) {
+      this.showToast('无法打开链接，请检查网络或浏览器');
     }
   }
 
@@ -463,19 +499,39 @@ struct Index {
               challengeSolved: this.challengeSolved,
               onCompleteTarget: () => this.onCompleteTarget(),
               onCompleteChallenge: () => this.onCompleteChallenge(),
-              onOpenTarget: () => this.showToast('正在唤起 LeetCode 题库…'),
-              onOpenChallenge: () => this.showToast('正在唤起 Codeforces 题目…')
+              onOpenTarget: () => {
+                this.openUrl(this.target.problem.url);
+              },
+              onOpenChallenge: () => {
+                this.openUrl(this.challenge.problem.url);
+              }
             })
           }
           .tabBar(this.tabBarItem(TabIndex.TODAY))
 
           TabContent() {
-            MatrixView({ collections: this.collections, problems: this.problems })
+            MatrixView({
+              collections: this.collections,
+              problems: this.problems,
+              onOpenProblem: (url: string) => {
+                this.openUrl(url);
+              },
+              onComingSoon: (label: string) => {
+                this.showToast(`${label}将在 v1.1 开放`);
+              }
+            })
           }
           .tabBar(this.tabBarItem(TabIndex.MATRIX))
 
           TabContent() {
-            ContestView({ contests: this.contests, task: this.task, days: this.weekDays })
+            ContestView({
+              contests: this.contests,
+              task: this.task,
+              days: this.weekDays,
+              onOpenUrl: (url: string) => {
+                this.openUrl(url);
+              }
+            })
           }
           .tabBar(this.tabBarItem(TabIndex.CONTEST))
 

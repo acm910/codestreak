@@ -9,6 +9,10 @@ import { CsDifficultyBadge, CsEmptyState, CsPlatformBadge, CsProgressBar, CsSect
 export struct MatrixView {
   @Param collections: CollectionCard[] = [];
   @Param problems: Problem[] = [];
+  @Event onOpenProblem: (url: string) => void = () => {
+  };
+  @Event onComingSoon: (label: string) => void = () => {
+  };
 
   @Local track: number = 0;
   @Local difficultyFilter: number = -1;
@@ -155,6 +159,9 @@ export struct MatrixView {
       .padding({ left: CsSpace.MD, right: CsSpace.MD })
       .borderRadius(CsRadius.XL)
       .backgroundColor(CsColor.SURFACE_HIGH)
+      .onClick(() => {
+        this.onComingSoon('自建题单');
+      })
     }
     .width('100%')
   }
@@ -333,6 +340,9 @@ export struct MatrixView {
     .padding(CsSpace.MD)
     .borderRadius(CsRadius.XL)
     .backgroundColor(CsColor.SURFACE_LOW)
+    .onClick(() => {
+      this.onOpenProblem(item.url);
+    })
   }
 
   build() {
@@ -424,6 +434,9 @@ export struct MatrixView {
             .padding({ left: 12, right: 12, top: 7, bottom: 7 })
             .borderRadius(CsRadius.LG)
             .backgroundColor(CsColor.SURFACE_LOWEST)
+            .onClick(() => {
+              this.onComingSoon('外站题单导入');
+            })
         }
         .width('100%')
         .padding(CsSpace.MD)
