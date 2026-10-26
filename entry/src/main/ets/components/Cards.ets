@@ -3,13 +3,14 @@ import { CsColor, CsFont, CsRadius, CsSize, CsSpace, withAlpha } from '../consta
 import {
   ContestItem, CountdownState, Problem, SettingRow, TargetCardData, UpsolveProblem, UpsolveTask, WeekCell
 } from '../model/Entities';
-import { ContestStatus, PlatformCode, SolveStatus, UpsolveState } from '../model/Enums';
+import { ContestStatus, PlatformCode, SolveStatus, TrackType, UpsolveState } from '../model/Enums';
 import { CsDifficultyBadge, CsPlatformBadge, CsProgressBar } from './Common';
 
 /** 兜底数据：组件参数始终非空，避免 build 根节点出现条件分支 */
 const EMPTY_PROBLEM: Problem = {
   id: '', platform: PlatformCode.LC, platformName: '', code: '', title: '', titleEn: '',
-  difficulty: 3, nativeLabel: '', tags: [], status: SolveStatus.TODO, sourceText: '', url: ''
+  difficulty: 3, nativeLabel: '', tags: [], status: SolveStatus.TODO, sourceText: '', url: '',
+  track: TrackType.INTERVIEW
 };
 const EMPTY_TARGET: TargetCardData = { problem: EMPTY_PROBLEM, rewardText: '' };
 const EMPTY_CONTEST: ContestItem = {

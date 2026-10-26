@@ -162,7 +162,7 @@ struct Index {
           id: item.id, platform: item.platform, platformName: item.platformName, code: item.code,
           title: item.title, titleEn: item.titleEn, difficulty: item.difficulty,
           nativeLabel: item.nativeLabel, tags: item.tags, status: SolveStatus.SOLVED,
-          sourceText: item.sourceText, url: item.url
+          sourceText: item.sourceText, url: item.url, track: item.track
         };
         next.push(updated);
       } else {

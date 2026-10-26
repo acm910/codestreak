@@ -1,7 +1,8 @@
 import { Glyph } from '../constants/AppConfig';
-import { CsColor, CsFont, CsRadius, CsSpace, platformColor, withAlpha } from '../constants/DesignTokens';
+import { CsColor, CsFont, CsRadius, CsSpace, platformColor, platformOnColor, withAlpha } from '../constants/DesignTokens';
+import { TrackFilter } from '../domain/TrackFilter';
 import { CollectionCard, Problem } from '../model/Entities';
-import { PlatformCode, SolveStatus } from '../model/Enums';
+import { PlatformCode, SolveStatus, TrackType } from '../model/Enums';
 import { CsDifficultyBadge, CsEmptyState, CsPlatformBadge, CsProgressBar, CsSectionHeader } from '../components/Common';
 
 /** P-02 题单矩阵页 */
@@ -50,6 +51,23 @@ export struct MatrixView {
     }
   }
 
+  private enabledPlatformCount(): number {
+    let count: number = 0;
+    if (this.lcEnabled) {
+      count = count + 1;
+    }
+    if (this.cfEnabled) {
+      count = count + 1;
+    }
+    if (this.lgEnabled) {
+      count = count + 1;
+    }
+    if (this.acEnabled) {
+      count = count + 1;
+    }
+    return count;
+  }
+
   private matchDifficulty(item: Problem): boolean {
     if (this.difficultyFilter < 0) {
       return true;
@@ -74,8 +92,11 @@ export struct MatrixView {
   }
 
   private filtered(): Problem[] {
+    const scoped: Problem[] = TrackFilter.problems(
+      this.problems, this.track === 0 ? TrackType.INTERVIEW : TrackType.CONTEST
+    );
     const result: Problem[] = [];
-    for (const item of this.problems) {
+    for (const item of scoped) {
       if (!this.platformEnabled(item.platform)) {
         continue;
       }
@@ -89,6 +110,12 @@ export struct MatrixView {
     }
     result.sort((a: Problem, b: Problem) => a.difficulty - b.difficulty);
     return result;
+  }
+
+  private collectionsForTrack(): CollectionCard[] {
+    return TrackFilter.collections(
+      this.collections, this.track === 0 ? TrackType.INTERVIEW : TrackType.CONTEST
+    );
   }
 
   @Builder
@@ -193,8 +220,11 @@ export struct MatrixView {
   @Builder
   platformRow() {
     Row({ space: 6 }) {
-      this.platformPill(PlatformCode.LC, 'LeetCode', this.lcEnabled)
-      this.platformPill(PlatformCode.CF, 'Codeforces', this.cfEnabled)
+      Text(`平台 ${this.enabledPlatformCount()}/4`)
+        .fontSize(CsFont.LABEL_SM)
+        .fontColor(CsColor.TEXT_TERTIARY)
+      this.platformPill(PlatformCode.LC, 'LC', this.lcEnabled)
+      this.platformPill(PlatformCode.CF, 'CF', this.cfEnabled)
       this.platformPill(PlatformCode.LG, '洛谷', this.lgEnabled)
       this.platformPill(PlatformCode.AC, 'AtCoder', this.acEnabled)
     }
@@ -206,14 +236,19 @@ export struct MatrixView {
     Row({ space: 4 }) {
       Text(enabled ? Glyph.CHECK : Glyph.HOLLOW_DOT)
         .fontSize(10)
-        .fontColor(enabled ? platformColor(code) : CsColor.TEXT_GHOST)
+        .fontColor(enabled ? platformOnColor(code) : CsColor.TEXT_GHOST)
       Text(label)
         .fontSize(CsFont.LABEL_SM)
-        .fontColor(enabled ? platformColor(code) : CsColor.TEXT_TERTIARY)
+        .fontWeight(enabled ? FontWeight.Bold : FontWeight.Normal)
+        .fontColor(enabled ? platformOnColor(code) : CsColor.TEXT_TERTIARY)
     }
-    .padding({ left: 8, right: 8, top: 5, bottom: 5 })
+    .padding({ left: 9, right: 9, top: 6, bottom: 6 })
     .borderRadius(CsRadius.FULL)
-    .backgroundColor(CsColor.SURFACE_HIGH)
+    .backgroundColor(enabled ? platformColor(code) : CsColor.SURFACE_HIGH)
+    .border({
+      width: 1,
+      color: enabled ? platformColor(code) : withAlpha(CsColor.TEXT_GHOST, 0.35)
+    })
     .onClick(() => this.togglePlatform(code))
   }
 
@@ -353,18 +388,29 @@ export struct MatrixView {
         this.difficultyRow()
         this.platformRow()
 
-        CsSectionHeader({ title: '官方精选题单', meta: '已订阅 3 项' })
-        Scroll() {
-          Row({ space: CsSpace.MD }) {
-            ForEach(this.collections, (item: CollectionCard) => {
-              this.collectionCard(item)
-            }, (item: CollectionCard) => item.id)
+        CsSectionHeader({
+          title: this.track === 0 ? '求职精选题单' : '竞赛精选题单',
+          meta: `已收录 ${this.collectionsForTrack().length} 项`
+        })
+        if (this.collectionsForTrack().length === 0) {
+          Text('该赛道暂无题单')
+            .fontSize(CsFont.BODY_SM)
+            .fontColor(CsColor.TEXT_TERTIARY)
+            .width('100%')
+            .padding({ top: CsSpace.SM, bottom: CsSpace.SM })
+        } else {
+          Scroll() {
+            Row({ space: CsSpace.MD }) {
+              ForEach(this.collectionsForTrack(), (item: CollectionCard) => {
+                this.collectionCard(item)
+              }, (item: CollectionCard) => item.id)
+            }
+            .padding({ right: CsSpace.GUTTER })
           }
-          .padding({ right: CsSpace.GUTTER })
+          .scrollable(ScrollDirection.Horizontal)
+          .scrollBar(BarState.Off)
+          .width('100%')
         }
-        .scrollable(ScrollDirection.Horizontal)
-        .scrollBar(BarState.Off)
-        .width('100%')
 
         Row() {
           Row({ space: CsSpace.SM }) {

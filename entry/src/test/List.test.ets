@@ -14,6 +14,7 @@ import leetCodeMapperTest from './LeetCodeMapper.test';
 import statsServiceTest from './StatsService.test';
 import platformContestMapperTest from './PlatformContestMapper.test';
 import nowCoderMapperTest from './NowCoderMapper.test';
+import trackFilterTest from './TrackFilter.test';
 
 export default function testsuite() {
   localUnitTest();
@@ -32,4 +33,5 @@ export default function testsuite() {
   statsServiceTest();
   platformContestMapperTest();
   nowCoderMapperTest();
+  trackFilterTest();
 }

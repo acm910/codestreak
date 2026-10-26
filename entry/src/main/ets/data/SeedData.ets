@@ -1,5 +1,5 @@
 import { CsColor } from '../constants/DesignTokens';
-import { CheckInStatus, PlatformCode, SolveStatus } from '../model/Enums';
+import { CheckInStatus, PlatformCode, SolveStatus, TrackType } from '../model/Enums';
 import { DateUtil } from '../utils/DateUtil';
 import {
   BadgeItem,
@@ -52,7 +52,8 @@ export class SeedData {
       tags: ['链表', '双指针', '高频面试 TOP100'],
       status: SolveStatus.TODO,
       sourceText: '',
-      url: 'https://leetcode.cn/problems/reverse-linked-list/'
+      url: 'https://leetcode.cn/problems/reverse-linked-list/',
+      track: TrackType.INTERVIEW
     };
     const data: TargetCardData = { problem: problem, rewardText: '+25 EXP' };
     return data;
@@ -71,7 +72,8 @@ export class SeedData {
       tags: ['math', 'games', 'Div.3 A题'],
       status: SolveStatus.TODO,
       sourceText: 'RATING: 800',
-      url: 'https://codeforces.com/problemset/problem/1899/A'
+      url: 'https://codeforces.com/problemset/problem/1899/A',
+      track: TrackType.CONTEST
     };
     const data: ChallengeCardData = { problem: problem, ratingText: 'RATING: 800' };
     return data;
@@ -96,43 +98,49 @@ export class SeedData {
       {
         id: 'c1', tag: '高频面试', title: '代码随想录 · 核心 60 题',
         desc: '经典数组、动态规划及单调栈体系化通关路线。',
-        done: 0, total: 60, percent: 0
+        done: 0, total: 60, percent: 0, track: TrackType.INTERVIEW
       },
       {
         id: 'c2', tag: '竞赛排位', title: 'CF 1200-1400 突破营',
         desc: '攻克 Div.3 C/D 与 Div.2 B/C 贪心与二分分水岭题目。',
-        done: 0, total: 45, percent: 0
+        done: 0, total: 45, percent: 0, track: TrackType.CONTEST
       },
       {
         id: 'c3', tag: '经典必刷', title: '剑指 Offer 经典必刷',
         desc: '国内大厂考察极高频的代码与数据结构模版题。',
-        done: 0, total: 75, percent: 0
+        done: 0, total: 75, percent: 0, track: TrackType.INTERVIEW
       }
     ];
     return list;
   }
 
-  /** P-02 题单矩阵库（3 行） */
+  /** P-02 题单矩阵库（按赛道分开：求职 2 题 / 竞赛 2 题） */
   static matrixProblems(): Problem[] {
     const list: Problem[] = [
       {
         id: 'p-lc-15', platform: PlatformCode.LC, platformName: 'LeetCode', code: 'LC-15',
         title: '三数之和 (3Sum)', titleEn: '', difficulty: 3, nativeLabel: 'Medium',
         tags: ['双指针', '排序'], status: SolveStatus.SOLVED, sourceText: '',
-        url: 'https://leetcode.cn/problems/3sum/'
+        url: 'https://leetcode.cn/problems/3sum/', track: TrackType.INTERVIEW
+      },
+      {
+        id: 'p-lc-1', platform: PlatformCode.LC, platformName: 'LeetCode', code: 'LC-1',
+        title: '两数之和 (Two Sum)', titleEn: '', difficulty: 2, nativeLabel: 'Easy',
+        tags: ['哈希表', '数组'], status: SolveStatus.TODO, sourceText: '',
+        url: 'https://leetcode.cn/problems/two-sum/', track: TrackType.INTERVIEW
       },
       {
         id: 'p-cf-1352c', platform: PlatformCode.CF, platformName: 'Codeforces', code: 'CF-1352C',
         title: 'K-th Not Divisible by n', titleEn: '', difficulty: 2, nativeLabel: '(1200)',
         tags: ['二分查找', '数学'], status: SolveStatus.DOING, sourceText: 'Round #640 (Div. 4)',
-        url: 'https://codeforces.com/problemset/problem/1352/C'
+        url: 'https://codeforces.com/problemset/problem/1352/C', track: TrackType.CONTEST
       },
       {
         id: 'p-lg-p3372', platform: PlatformCode.LG, platformName: '洛谷', code: 'LG-P3372',
         title: '【模板】线段树 1', titleEn: '', difficulty: 3,
         nativeLabel: '普及+/提高',
         tags: ['数据结构', '线段树'], status: SolveStatus.TODO, sourceText: '',
-        url: 'https://www.luogu.com.cn/problem/P3372'
+        url: 'https://www.luogu.com.cn/problem/P3372', track: TrackType.CONTEST
       }
     ];
     return list;

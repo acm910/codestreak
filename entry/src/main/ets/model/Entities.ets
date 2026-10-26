@@ -1,4 +1,4 @@
-import { CheckInStatus, ContestStatus, PlatformCode, SolveStatus, UpsolveState } from './Enums';
+import { CheckInStatus, ContestStatus, PlatformCode, SolveStatus, TrackType, UpsolveState } from './Enums';
 
 /** 题目（列表行与目标卡共用） */
 export interface Problem {
@@ -20,6 +20,8 @@ export interface Problem {
   sourceText: string;
   /** 题目外链（跳转题库用） */
   url: string;
+  /** 所属赛道：求职高频 / 算法竞赛 */
+  track: TrackType;
 }
 
 /** 官方精选题单卡（C-23） */
@@ -31,6 +33,8 @@ export interface CollectionCard {
   done: number;
   total: number;
   percent: number;
+  /** 所属赛道 */
+  track: TrackType;
 }
 
 /** 比赛（C-29） */
