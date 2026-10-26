@@ -40,8 +40,9 @@ $hvigor = 'D:\develop\harmony\DevEco Studio\tools\hvigor\bin\hvigorw.js'
 | P-04 统计榜单 | ✅ | 用户卡、热力图、难度分布、徽章、排行榜、设置行 |
 | 全局框架 | ✅ | AppBar + 四 Tab（保留各页状态）、Toast、打卡庆祝遮罩 |
 | RDB 持久化 | ✅ | `data/db`（v2）：7 张表（user / check_in / problem / contest / app_setting / submission / sync_job）、首启种子灌库、打卡与提交落库、当日 AC 聚合 |
-| 单元测试 | ✅ | hypium 本地单测 **40 条全通过**（难度归一化 / 日期周数 / 打卡状态机 / CF 与 AtCoder 映射 / 同步策略），行覆盖 80.93%、分支 75.89% |
+| 单元测试 | ✅ | hypium 本地单测 **45 条全通过**（难度归一化 / 日期周数 / 打卡状态机 / CF、AtCoder、CPC Finder 映射 / 同步策略），行覆盖 82.75%、分支 74.65% |
 | 平台同步 | 🟡 | **Codeforces（真机已验证）与 AtCoder（代码完成）端到端**：节流 → HTTP → 映射 → 幂等落库 → 当日 AC；洛谷/LC 待做（见 `docs/04-技术设计/07`） |
+| 赛事与外链 | ✅ | ICPC/CCPC 赛程取自 [CPC Finder](https://cpcfinder.com/contest) 公开接口；题目与赛事按钮跳转系统浏览器 |
 | 通知提醒 | ⏳ | 下一步：`reminderAgentManager` 21:30 与赛前 15 分钟 |
 
 ## 目录结构
@@ -60,12 +61,13 @@ entry/src/main/ets/
 ├── data/
 │   ├── SeedData.ets       自洽数据集 v1
 │   ├── SyncService.ets    同步编排（拉取 → 落库 → 当日 AC → sync_job）
+│   ├── ContestFeedService.ets  ICPC/CCPC 赛程（CPC Finder → 比赛卡）
 │   ├── db/                DbSchema（DDL v2）、DatabaseHelper（初始化/种子/读写/聚合/设置）
-│   └── remote/            CodeforcesAdapter / AtCoderAdapter（HTTP）、对应 Mapper（响应映射）
+│   └── remote/            Codeforces / AtCoder / Cpcfinder 适配器与映射
 ├── constants/             DesignTokens、AppConfig（Tab 配置与图标字符）
-└── utils/                 DateUtil（ISO 周数/相对日期）、Difficulty（难度归一化）
+└── utils/                 DateUtil（ISO 周数/相对日期）、Difficulty（难度归一化）、LinkService（外链跳转）
 
-entry/src/test/            hypium 单测：Difficulty / DateUtil / CheckInService / CodeforcesMapper / AtCoderMapper / SyncPolicy
+entry/src/test/            hypium 单测：Difficulty / DateUtil / CheckInService / CodeforcesMapper / AtCoderMapper / CpcfinderMapper / SyncPolicy
 ```
 
 ## 测试
@@ -85,10 +87,11 @@ $env:DEVECO_SDK_HOME = 'D:\develop\harmony\DevEco Studio\sdk'
 1. **同步覆盖 CF 与 AtCoder**：设置 →「OJ 元数据同步管理」可分别绑定两个平台，AppBar 同步按钮串行拉取；洛谷/LC 尚未接入，页面其余数据仍来自种子库。
 2. **同步需手动触发**：无定时/后台同步，失败仅提示，无重试队列。
 3. **AtCoder 难度为估算值**：按题位字母映射（A→★1 … G→★5），未接 `problem-models.json`。
-4. **外链、导出、提醒为界面反馈**：不产生真实跳转/文件/通知副作用。
-5. **图标为字符占位**：待替换为 `SymbolGlyph` 或字体图标（设计规范见 `docs/02-设计规范/05`）。
-6. **真机回归未完成**：编译、打包、40 条单测、CF 同步与首次启动均已通过，但四页 UI 与 AtCoder 同步尚未按用例逐条回归（对照 `docs/07-测试与质量/02`）。
-7. **签名缺失**：命令行产物为 unsigned HAP，安装前需配置签名。
+4. **ICPC/CCPC 赛程来自第三方**：`cpcfinder.com` 公开接口，仅取今天及以后前 4 场，缺时长与报名状态；源不可用时回退本地种子。
+5. **外链跳转依赖系统浏览器**：题目/赛事按钮通过 `viewData` 打开链接，设备无浏览器或链接失效时会提示失败。
+6. **图标为字符占位**：待替换为 `SymbolGlyph` 或字体图标（设计规范见 `docs/02-设计规范/05`）。
+7. **真机回归未完成**：编译、打包、45 条单测、CF 同步与首次启动均已通过，但四页 UI、AtCoder 同步与赛程拉取尚未按用例逐条回归（对照 `docs/07-测试与质量/02`）。
+8. **签名缺失**：命令行产物为 unsigned HAP，安装前需配置签名。
 
 ## 版本管理
 
