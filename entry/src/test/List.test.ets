@@ -3,6 +3,7 @@ import difficultyTest from './Difficulty.test';
 import dateUtilTest from './DateUtil.test';
 import checkInServiceTest from './CheckInService.test';
 import codeforcesMapperTest from './CodeforcesMapper.test';
+import syncPolicyTest from './SyncPolicy.test';
 
 export default function testsuite() {
   localUnitTest();
@@ -10,4 +11,5 @@ export default function testsuite() {
   dateUtilTest();
   checkInServiceTest();
   codeforcesMapperTest();
+  syncPolicyTest();
 }
