@@ -1,6 +1,7 @@
 import { common } from '@kit.AbilityKit';
 import { relationalStore } from '@kit.ArkData';
 import { hilog } from '@kit.PerformanceAnalysisKit';
+import { SyncSubmission } from '../../model/SyncModels';
 import { DateUtil } from '../../utils/DateUtil';
 import { DbSchema } from './DbSchema';
 
@@ -211,6 +212,143 @@ export class DatabaseHelper {
       hilog.info(DOMAIN, TAG, 'check-in persisted: %{public}s', record.date);
     } catch (err) {
       hilog.error(DOMAIN, TAG, 'saveCheckIn failed: %{public}s', JSON.stringify(err));
+    }
+  }
+
+  /** 批量写入提交记录（按 platform + external_id 幂等），返回新增行数 */
+  static async upsertSubmissions(items: SyncSubmission[]): Promise<number> {
+    const store: relationalStore.RdbStore | null = DatabaseHelper.store;
+    if (store === null || items.length === 0) {
+      return 0;
+    }
+    const before: number = await DatabaseHelper.countRows('submission');
+    const now: number = Date.now();
+    try {
+      for (const item of items) {
+        const day: string = DateUtil.dateKey(new Date(item.epochSecond * 1000));
+        const bucket: relationalStore.ValuesBucket = {
+          platform: item.platform,
+          external_id: item.externalId,
+          problem_key: item.problemKey,
+          title: item.title,
+          difficulty_norm: item.difficultyNorm,
+          verdict: item.verdict,
+          is_ac: item.isAc ? 1 : 0,
+          epoch_second: item.epochSecond,
+          local_day: day,
+          created_at: now
+        };
+        await store.insert('submission', bucket, relationalStore.ConflictResolution.ON_CONFLICT_IGNORE);
+      }
+    } catch (err) {
+      hilog.error(DOMAIN, TAG, 'upsertSubmissions failed: %{public}s', JSON.stringify(err));
+    }
+    const after: number = await DatabaseHelper.countRows('submission');
+    const inserted: number = after - before;
+    hilog.info(DOMAIN, TAG, 'submissions upserted: %{public}d', inserted);
+    return inserted;
+  }
+
+  /** 某日 AC 题数（按 problem_key 去重） */
+  static async countDailyAc(day: string): Promise<number> {
+    const store: relationalStore.RdbStore | null = DatabaseHelper.store;
+    if (store === null) {
+      return 0;
+    }
+    try {
+      const resultSet: relationalStore.ResultSet = await store.querySql(
+        'SELECT COUNT(DISTINCT problem_key) AS c FROM submission WHERE local_day = ? AND is_ac = 1', [day]
+      );
+      let count: number = 0;
+      if (resultSet.goToFirstRow()) {
+        count = resultSet.getLong(resultSet.getColumnIndex('c'));
+      }
+      resultSet.close();
+      return count;
+    } catch (err) {
+      hilog.error(DOMAIN, TAG, 'countDailyAc failed: %{public}s', JSON.stringify(err));
+      return 0;
+    }
+  }
+
+  /** 通用行数统计（内部使用） */
+  private static async countRows(table: string): Promise<number> {
+    const store: relationalStore.RdbStore | null = DatabaseHelper.store;
+    if (store === null) {
+      return 0;
+    }
+    try {
+      const resultSet: relationalStore.ResultSet = await store.querySql(`SELECT COUNT(1) AS c FROM ${table}`);
+      let count: number = 0;
+      if (resultSet.goToFirstRow()) {
+        count = resultSet.getLong(resultSet.getColumnIndex('c'));
+      }
+      resultSet.close();
+      return count;
+    } catch (err) {
+      return 0;
+    }
+  }
+
+  /** 读取设置项（不存在返回空串） */
+  static async loadSetting(key: string): Promise<string> {
+    const store: relationalStore.RdbStore | null = DatabaseHelper.store;
+    if (store === null) {
+      return '';
+    }
+    try {
+      const resultSet: relationalStore.ResultSet = await store.querySql(
+        'SELECT setting_value FROM app_setting WHERE setting_key = ?', [key]
+      );
+      let value: string = '';
+      if (resultSet.goToFirstRow()) {
+        value = resultSet.getString(resultSet.getColumnIndex('setting_value'));
+      }
+      resultSet.close();
+      return value;
+    } catch (err) {
+      return '';
+    }
+  }
+
+  /** 写入设置项（覆盖） */
+  static async saveSetting(key: string, value: string): Promise<void> {
+    const store: relationalStore.RdbStore | null = DatabaseHelper.store;
+    if (store === null) {
+      return;
+    }
+    try {
+      const bucket: relationalStore.ValuesBucket = {
+        setting_key: key,
+        setting_value: value,
+        updated_at: Date.now()
+      };
+      await store.insert('app_setting', bucket, relationalStore.ConflictResolution.ON_CONFLICT_REPLACE);
+    } catch (err) {
+      hilog.error(DOMAIN, TAG, 'saveSetting failed: %{public}s', JSON.stringify(err));
+    }
+  }
+
+  /** 记录一次同步任务（可观测性，docs/04-04） */
+  static async logSyncJob(platform: string, status: string, fetched: number,
+    inserted: number, message: string, startedAt: number): Promise<void> {
+    const store: relationalStore.RdbStore | null = DatabaseHelper.store;
+    if (store === null) {
+      return;
+    }
+    try {
+      const bucket: relationalStore.ValuesBucket = {
+        platform: platform,
+        status: status,
+        fetched: fetched,
+        inserted: inserted,
+        message: message,
+        started_at: startedAt,
+        finished_at: Date.now()
+      };
+      await store.insert('sync_job', bucket);
+    } catch (err) {
+      hilog.error(DOMAIN, TAG, 'logSyncJob failed: %{public}s', JSON.stringify(err));
     }
   }
 }

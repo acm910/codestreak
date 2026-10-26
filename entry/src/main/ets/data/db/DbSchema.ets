@@ -1,11 +1,11 @@
 /**
- * 本地库 Schema（v1）
- * 对应 docs/04-技术设计/03-数据模型设计.md；当前先落 5 张核心表，
- * 其余表（problem_set / contest_registration / upsolve_* / badge 等）在接入同步时按同一迁移机制追加。
+ * 本地库 Schema（v2）
+ * 对应 docs/04-技术设计/03-数据模型设计.md；v2 新增 submission 表以支撑同步落库与当日 AC 聚合。
+ * 迁移策略：全部语句均为 IF NOT EXISTS，升级不删旧表、不改列，保证已有安装数据不丢。
  */
 export class DbSchema {
   static readonly DB_NAME: string = 'codestreak.db';
-  static readonly VERSION: number = 1;
+  static readonly VERSION: number = 2;
 
   static readonly TABLES: string[] = [
     `CREATE TABLE IF NOT EXISTS user (
@@ -54,8 +54,34 @@ export class DbSchema {
       setting_value TEXT NOT NULL,
       updated_at INTEGER NOT NULL
     )`,
+    `CREATE TABLE IF NOT EXISTS submission (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      platform TEXT NOT NULL,
+      external_id TEXT NOT NULL,
+      problem_key TEXT NOT NULL,
+      title TEXT NOT NULL DEFAULT '',
+      difficulty_norm REAL NOT NULL DEFAULT 3.0,
+      verdict TEXT NOT NULL,
+      is_ac INTEGER NOT NULL DEFAULT 0,
+      epoch_second INTEGER NOT NULL DEFAULT 0,
+      local_day TEXT NOT NULL DEFAULT '',
+      created_at INTEGER NOT NULL,
+      UNIQUE(platform, external_id)
+    )`,
+    `CREATE TABLE IF NOT EXISTS sync_job (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      platform TEXT NOT NULL,
+      status TEXT NOT NULL,
+      fetched INTEGER NOT NULL DEFAULT 0,
+      inserted INTEGER NOT NULL DEFAULT 0,
+      message TEXT NOT NULL DEFAULT '',
+      started_at INTEGER NOT NULL,
+      finished_at INTEGER NOT NULL DEFAULT 0
+    )`,
     `CREATE INDEX IF NOT EXISTS idx_check_in_date ON check_in(checkin_date)`,
     `CREATE INDEX IF NOT EXISTS idx_problem_platform ON problem(platform, code)`,
-    `CREATE INDEX IF NOT EXISTS idx_contest_start ON contest(start_at)`
+    `CREATE INDEX IF NOT EXISTS idx_contest_start ON contest(start_at)`,
+    `CREATE INDEX IF NOT EXISTS idx_submission_day ON submission(local_day, is_ac)`,
+    `CREATE INDEX IF NOT EXISTS idx_submission_problem ON submission(platform, problem_key)`
   ];
 }
