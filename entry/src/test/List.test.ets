@@ -4,6 +4,7 @@ import dateUtilTest from './DateUtil.test';
 import checkInServiceTest from './CheckInService.test';
 import codeforcesMapperTest from './CodeforcesMapper.test';
 import syncPolicyTest from './SyncPolicy.test';
+import atCoderMapperTest from './AtCoderMapper.test';
 
 export default function testsuite() {
   localUnitTest();
@@ -12,4 +13,5 @@ export default function testsuite() {
   checkInServiceTest();
   codeforcesMapperTest();
   syncPolicyTest();
+  atCoderMapperTest();
 }
