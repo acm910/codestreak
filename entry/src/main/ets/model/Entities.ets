@@ -1,0 +1,157 @@
+import { CheckInStatus, ContestStatus, PlatformCode, SolveStatus, UpsolveState } from './Enums';
+
+/** 题目（列表行与目标卡共用） */
+export interface Problem {
+  id: string;
+  platform: PlatformCode;
+  /** 平台展示名，如 LeetCode */
+  platformName: string;
+  /** 全局题号，如 LC-15 / CF-1352C / LG-P3372 */
+  code: string;
+  title: string;
+  titleEn: string;
+  /** 归一化难度 1.0–5.0，0.5 粒度 */
+  difficulty: number;
+  /** 平台原生难度文案，如 "Medium" / "(1200)" / "普及+/提高" */
+  nativeLabel: string;
+  tags: string[];
+  status: SolveStatus;
+  /** 附加说明：题目来源比赛等 */
+  sourceText: string;
+}
+
+/** 官方精选题单卡（C-23） */
+export interface CollectionCard {
+  id: string;
+  tag: string;
+  title: string;
+  desc: string;
+  done: number;
+  total: number;
+  percent: number;
+}
+
+/** 比赛（C-29） */
+export interface ContestItem {
+  id: string;
+  platform: PlatformCode;
+  platformLabel: string;
+  name: string;
+  timeText: string;
+  durationText: string;
+  status: ContestStatus;
+  statusText: string;
+  /** 左侧状态竖条颜色（空字符串表示无） */
+  accent: string;
+  /** 页脚说明 */
+  footerText: string;
+  /** 主操作文案 */
+  actionText: string;
+  /** 副操作文案，空则不显示 */
+  secondaryText: string;
+  /** 是否带脉冲点（进行中/报名中） */
+  pulsing: boolean;
+}
+
+/** 补题题目行（C-30） */
+export interface UpsolveProblem {
+  letter: string;
+  title: string;
+  difficultyText: string;
+  state: UpsolveState;
+  stateText: string;
+  focused: boolean;
+}
+
+/** 补题任务（C-30） */
+export interface UpsolveTask {
+  contestName: string;
+  resultText: string;
+  percent: number;
+  problems: UpsolveProblem[];
+}
+
+/** 徽章（C-34） */
+export interface BadgeItem {
+  id: string;
+  name: string;
+  state: 'locked' | 'in_progress' | 'unlocked';
+  stateText: string;
+  glyph: string;
+}
+
+/** 排行榜行（C-35） */
+export interface LeaderRow {
+  rank: number;
+  name: string;
+  subtitle: string;
+  days: number;
+  isYou: boolean;
+}
+
+/** 设置行（C-36） */
+export interface SettingRow {
+  id: string;
+  title: string;
+  subtitle: string;
+  glyph: string;
+  kind: 'toggle' | 'link';
+  enabled: boolean;
+}
+
+/** 周矩阵单元（C-05） */
+export interface WeekCell {
+  /** 一二三四五六日 */
+  label: string;
+  state: 'done' | 'today' | 'future';
+}
+
+/** 周日历条目（C-28） */
+export interface WeekStripDay {
+  label: string;
+  date: string;
+  active: boolean;
+  dotColor: string;
+}
+
+/** 难度分布行（C-33） */
+export interface DifficultyRow {
+  star: number;
+  name: string;
+  topic: string;
+  count: number;
+  percent: number;
+}
+
+/** 比赛倒计时 */
+export interface CountdownState {
+  days: string;
+  hours: string;
+  minutes: string;
+  seconds: string;
+}
+
+/** 今日核心推荐卡（C-06） */
+export interface TargetCardData {
+  problem: Problem;
+  rewardText: string;
+}
+
+/** 竞赛挑战卡（C-07） */
+export interface ChallengeCardData {
+  problem: Problem;
+  ratingText: string;
+}
+
+/** 页面级统计快照 */
+export interface TodaySnapshot {
+  status: CheckInStatus;
+  targetProgress: number;
+  dailyTarget: number;
+  streakDays: number;
+  longestStreak: number;
+  todayAcCount: number;
+  focusMinutes: number;
+  beatPercent: number;
+  weekNumber: number;
+}
