@@ -7,6 +7,7 @@ import { AtCoderMapper } from './remote/AtCoderMapper';
 import { CodeforcesAdapter } from './remote/CodeforcesAdapter';
 import { LeetCodeAdapter } from './remote/LeetCodeAdapter';
 import { LuoguAdapter } from './remote/LuoguAdapter';
+import { NowCoderAdapter } from './remote/NowCoderAdapter';
 
 /** 一次同步的结果，供 UI 提示与埋点 */
 export interface SyncOutcome {
@@ -26,6 +27,7 @@ export class SyncService {
   static readonly AC_HANDLE_KEY: string = 'ac_handle';
   static readonly AC_CURSOR_KEY: string = 'ac_cursor';
   static readonly LG_UID_KEY: string = 'luogu_uid';
+  static readonly NC_UID_KEY: string = 'nowcoder_uid';
   static readonly LC_HANDLE_KEY: string = 'lc_handle';
   static readonly LAST_SYNC_KEY: string = 'last_sync_at';
   static readonly RETRY_KEY: string = 'sync_retry';
@@ -116,8 +118,24 @@ export class SyncService {
     return outcome;
   }
 
-  static async syncLeetCode(handle: string): Promise<SyncOutcome> {
+  static async syncNowCoder(uid: string): Promise<SyncOutcome> {
     const startedAt: number = Date.now();
+    const result: MapperResult = await NowCoderAdapter.fetchPractice(uid);
+    if (!result.ok) {
+      await DatabaseHelper.logSyncJob('NC', 'failed', 0, 0, result.message, startedAt);
+      const failed: SyncOutcome = { ok: false, message: result.message, fetched: 0, inserted: 0, dailyAc: 0 };
+      return failed;
+    }
+    const submissions: SyncSubmission[] = result.submissions;
+    const inserted: number = await DatabaseHelper.upsertSubmissions(submissions);
+    const dailyAc: number = await DatabaseHelper.countDailyAc(DateUtil.todayKey());
+    await DatabaseHelper.logSyncJob('NC', 'success', submissions.length, inserted, '', startedAt);
+    const outcome: SyncOutcome = await SyncService.finish('success', submissions.length, inserted, dailyAc, startedAt);
+    outcome.message = `牛客：导入 ${submissions.length} 条，新增 ${inserted} 条`;
+    return outcome;
+  }
+
+  static async syncLeetCode(handle: string): Promise<SyncOutcome> {    const startedAt: number = Date.now();
     const result: MapperResult = await LeetCodeAdapter.fetchRecentAc(handle);
     if (!result.ok) {
       await DatabaseHelper.logSyncJob('LC', 'failed', 0, 0, result.message, startedAt);
@@ -174,6 +192,8 @@ export class SyncService {
       outcome = await SyncService.syncLuogu(entry.target);
     } else if (entry.platform === 'LC') {
       outcome = await SyncService.syncLeetCode(entry.target);
+    } else if (entry.platform === 'NC') {
+      outcome = await SyncService.syncNowCoder(entry.target);
     } else {
       await SyncService.clearRetry();
       return '';
@@ -193,6 +213,14 @@ export class SyncService {
 
   static async loadLuoguUid(): Promise<string> {
     return DatabaseHelper.loadSetting(SyncService.LG_UID_KEY);
+  }
+
+  static async loadNowCoderUid(): Promise<string> {
+    return DatabaseHelper.loadSetting(SyncService.NC_UID_KEY);
+  }
+
+  static async saveNowCoderUid(uid: string): Promise<void> {
+    await DatabaseHelper.saveSetting(SyncService.NC_UID_KEY, uid.trim());
   }
 
   static async loadLeetCodeHandle(): Promise<string> {

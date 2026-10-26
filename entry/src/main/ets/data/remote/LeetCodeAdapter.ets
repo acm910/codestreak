@@ -1,7 +1,7 @@
 import { http } from '@kit.NetworkKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import { MapperResult } from '../../model/SyncModels';
-import { DatabaseHelper } from '../db/DatabaseHelper';
+import { CredentialStore } from '../CredentialStore';
 import { LC_RECENT_QUERY, LeetCodeMapper } from './LeetCodeMapper';
 
 const DOMAIN: number = 0x0008;
@@ -102,7 +102,10 @@ export class LeetCodeAdapter {
     if (LeetCodeAdapter.failures >= 3) {
       return { ok: false, message: 'LeetCode 已降级为手动模式，请稍后重试', submissions: [] };
     }
-    const cookie: string = await DatabaseHelper.loadSetting('lc_cookie');
+    const cookie: string = await CredentialStore.loadCookie('LC');
+    if (cookie.length === 0) {
+      return { ok: false, message: 'LeetCode 需要登录：请在绑定弹层点「登录获取授权」', submissions: [] };
+    }
     const variables: LcVariables = { username: trimmed, limit: LIMIT };
     const payload: LcPayload = { query: LC_RECENT_QUERY, variables: variables };
     const bodyText: string = JSON.stringify(payload);

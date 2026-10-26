@@ -1,7 +1,7 @@
 import { http } from '@kit.NetworkKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import { MapperResult } from '../../model/SyncModels';
-import { DatabaseHelper } from '../db/DatabaseHelper';
+import { CredentialStore } from '../CredentialStore';
 import { LuoguMapper } from './LuoguMapper';
 
 const DOMAIN: number = 0x0007;
@@ -78,7 +78,10 @@ export class LuoguAdapter {
     if (LuoguAdapter.failures >= 3) {
       return { ok: false, message: '洛谷已降级为手动模式，请稍后重试', submissions: [] };
     }
-    const cookie: string = await DatabaseHelper.loadSetting('luogu_cookie');
+    const cookie: string = await CredentialStore.loadCookie('LG');
+    if (cookie.length === 0) {
+      return { ok: false, message: '洛谷需要登录：请在绑定弹层点「登录获取授权」', submissions: [] };
+    }
     const url: string = `${BASE_URL}/record/list?user=${encodeURIComponent(trimmed)}&page=${page}`;
     try {
       const body: string = await LuoguAdapter.get(url, cookie);

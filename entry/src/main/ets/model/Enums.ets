@@ -3,7 +3,8 @@ export enum PlatformCode {
   LC = 'LC',
   CF = 'CF',
   LG = 'LG',
-  AC = 'AC'
+  AC = 'AC',
+  NC = 'NC'
 }
 
 /** 每日状态 */

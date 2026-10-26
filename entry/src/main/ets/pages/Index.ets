@@ -1,4 +1,5 @@
 import { common } from '@kit.AbilityKit';
+import { router } from '@kit.ArkUI';
 import { Glyph, TabSpec } from '../constants/AppConfig';
 import { CsColor, CsFont, CsRadius, CsSpace, withAlpha } from '../constants/DesignTokens';
 import { SeedData } from '../data/SeedData';
@@ -38,12 +39,13 @@ struct Index {
   @Local cfHandle: string = '';
   @Local acHandle: string = '';
   @Local lgUid: string = '';
+  @Local ncUid: string = '';
   @Local lcHandle: string = '';
   @Local showBind: boolean = false;
   @Local handleDraft: string = '';
   @Local bindPlatform: string = 'CF';
   @Local lastSyncText: string = '';
-  @Local platformLabels: string[] = ['CF 未绑定', 'AtCoder 未绑定', '洛谷 未绑定', 'LC 未绑定'];
+  @Local platformLabels: string[] = ['CF 未绑定', 'AtCoder 未绑定', '洛谷 未绑定', '牛客 未绑定', 'LC 未绑定'];
 
   private target: TargetCardData = SeedData.targetCard();
   private challenge: ChallengeCardData = SeedData.challengeCard();
@@ -121,11 +123,13 @@ struct Index {
       this.cfHandle = await SyncService.loadHandle();
       this.acHandle = await SyncService.loadAtCoderHandle();
       this.lgUid = await SyncService.loadLuoguUid();
+      this.ncUid = await SyncService.loadNowCoderUid();
       this.lcHandle = await SyncService.loadLeetCodeHandle();
       const labels: string[] = [
         this.cfHandle.length > 0 ? 'CF 已绑定' : 'CF 未绑定',
         this.acHandle.length > 0 ? 'AtCoder 已绑定' : 'AtCoder 未绑定',
         this.lgUid.length > 0 ? '洛谷 已绑定' : '洛谷 未绑定',
+        this.ncUid.length > 0 ? '牛客 已绑定' : '牛客 未绑定',
         this.lcHandle.length > 0 ? 'LC 已绑定' : 'LC 未绑定'
       ];
       this.platformLabels = labels;
@@ -252,7 +256,7 @@ struct Index {
 
   private async syncNow(): Promise<void> {
     if (this.cfHandle.length === 0 && this.acHandle.length === 0 &&
-      this.lgUid.length === 0 && this.lcHandle.length === 0) {
+      this.lgUid.length === 0 && this.ncUid.length === 0 && this.lcHandle.length === 0) {
       this.handleDraft = '';
       this.bindPlatform = 'CF';
       this.showBind = true;
@@ -288,6 +292,15 @@ struct Index {
         dailyAc = lg.dailyAc;
       } else if (!lg.ok) {
         await SyncService.scheduleRetry('LG', this.lgUid);
+      }
+    }
+    if (this.ncUid.length > 0) {
+      const nc: SyncOutcome = await SyncService.syncNowCoder(this.ncUid);
+      messages.push(nc.ok ? nc.message : `牛客失败：${nc.message}`);
+      if (nc.ok && nc.dailyAc > 0) {
+        dailyAc = nc.dailyAc;
+      } else if (!nc.ok) {
+        await SyncService.scheduleRetry('NC', this.ncUid);
       }
     }
     if (this.lcHandle.length > 0) {
@@ -330,6 +343,8 @@ struct Index {
         this.showToast('请输入 AtCoder 用户名');
       } else if (this.bindPlatform === 'LG') {
         this.showToast('请输入洛谷 UID');
+      } else if (this.bindPlatform === 'NC') {
+        this.showToast('请输入牛客 UID');
       } else {
         this.showToast('请输入 LeetCode 用户名');
       }
@@ -344,6 +359,9 @@ struct Index {
     } else if (this.bindPlatform === 'LG') {
       await SyncService.saveLuoguUid(handle);
       this.lgUid = handle;
+    } else if (this.bindPlatform === 'NC') {
+      await SyncService.saveNowCoderUid(handle);
+      this.ncUid = handle;
     } else {
       await SyncService.saveLeetCodeHandle(handle);
       this.lcHandle = handle;
@@ -508,7 +526,8 @@ struct Index {
       Row() {
         Text(this.bindPlatform === 'CF' ? '绑定 Codeforces 账号'
           : (this.bindPlatform === 'AC' ? '绑定 AtCoder 账号'
-            : (this.bindPlatform === 'LG' ? '绑定洛谷账号' : '绑定 LeetCode 账号')))
+            : (this.bindPlatform === 'LG' ? '绑定洛谷账号'
+              : (this.bindPlatform === 'NC' ? '绑定牛客账号' : '绑定 LeetCode 账号'))))
           .fontSize(CsFont.H3)
           .fontWeight(FontWeight.Bold)
           .fontColor(CsColor.TEXT_PRIMARY)
@@ -562,6 +581,19 @@ struct Index {
             this.bindPlatform = 'LG';
             this.handleDraft = this.lgUid;
           })
+        Text('牛客')
+          .fontSize(CsFont.LABEL_SM)
+          .fontColor(this.bindPlatform === 'NC' ? CsColor.PRIMARY_ON : CsColor.TEXT_SECONDARY)
+          .fontWeight(this.bindPlatform === 'NC' ? FontWeight.Bold : FontWeight.Normal)
+          .textAlign(TextAlign.Center)
+          .layoutWeight(1)
+          .height(32)
+          .borderRadius(CsRadius.LG)
+          .backgroundColor(this.bindPlatform === 'NC' ? CsColor.PRIMARY_CONTAINER : CsColor.SURFACE_CONTAINER)
+          .onClick(() => {
+            this.bindPlatform = 'NC';
+            this.handleDraft = this.ncUid;
+          })
         Text('LeetCode')
           .fontSize(CsFont.LABEL_SM)
           .fontColor(this.bindPlatform === 'LC' ? CsColor.PRIMARY_ON : CsColor.TEXT_SECONDARY)
@@ -587,7 +619,8 @@ struct Index {
         text: this.handleDraft,
         placeholder: this.bindPlatform === 'CF' ? 'handle，例如 tourist'
           : (this.bindPlatform === 'AC' ? '用户名，例如 chokudai'
-            : (this.bindPlatform === 'LG' ? 'UID，例如 123456' : '用户名，例如 leetcode'))
+            : (this.bindPlatform === 'LG' ? 'UID，例如 123456'
+              : (this.bindPlatform === 'NC' ? 'UID，例如 123456' : '用户名，例如 leetcode')))
       })
         .fontSize(CsFont.LABEL)
         .fontColor(CsColor.TEXT_PRIMARY)
@@ -598,6 +631,23 @@ struct Index {
         .onChange((value: string) => {
           this.handleDraft = value;
         })
+
+      if (this.bindPlatform === 'LG' || this.bindPlatform === 'NC' || this.bindPlatform === 'LC') {
+        Text(this.bindPlatform === 'LC' ? '打开 LeetCode 登录页' : '登录获取授权（必需）')
+          .fontSize(CsFont.LABEL_SM)
+          .fontColor(CsColor.PRIMARY)
+          .width('100%')
+          .height(34)
+          .textAlign(TextAlign.Center)
+          .borderRadius(CsRadius.LG)
+          .backgroundColor(CsColor.SURFACE_CONTAINER)
+          .onClick(() => {
+            router.pushUrl({
+              url: 'pages/WebLogin',
+              params: { platform: this.bindPlatform }
+            });
+          })
+      }
 
       Row({ space: CsSpace.SM }) {
         Text('取消')
@@ -713,6 +763,9 @@ struct Index {
                   this.handleDraft = '';
                 } else if (this.lgUid.length === 0) {
                   this.bindPlatform = 'LG';
+                  this.handleDraft = '';
+                } else if (this.ncUid.length === 0) {
+                  this.bindPlatform = 'NC';
                   this.handleDraft = '';
                 } else if (this.lcHandle.length === 0) {
                   this.bindPlatform = 'LC';
