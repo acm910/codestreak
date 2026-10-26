@@ -40,8 +40,9 @@ $hvigor = 'D:\develop\harmony\DevEco Studio\tools\hvigor\bin\hvigorw.js'
 | P-04 统计榜单 | ✅ | 用户卡、热力图、难度分布、徽章、排行榜、设置行 |
 | 全局框架 | ✅ | AppBar + 四 Tab（保留各页状态）、Toast、打卡庆祝遮罩 |
 | RDB 持久化 | ✅ | `data/db`（v2）：7 张表（user / check_in / problem / contest / app_setting / submission / sync_job）、首启种子灌库、打卡与提交落库、当日 AC 聚合 |
-| 单元测试 | ✅ | hypium 本地单测 **79 条全通过**（难度/日期/打卡/映射/同步策略/热力图/提醒/重试/真实统计/赛程），行覆盖 86.45%、分支 71.85% |
-| 平台同步 | 🟡 | **四平台齐备（CF 真机已验证）**：节流 → HTTP/GraphQL → 映射 → 幂等落库 → 当日 AC；LC 需登录 Cookie，失败自动重试 |
+| 单元测试 | ✅ | hypium 本地单测 **83 条全通过**（难度/日期/打卡/映射/同步策略/热力图/提醒/重试/真实统计/赛程/牛客解析），行覆盖 87.18%、分支 72.58% |
+| 平台同步 | 🟡 | **五平台（CF / AtCoder / 洛谷 / LeetCode / 牛客）**：节流 → HTTP/GraphQL/HTML → 映射 → 幂等落库；登录态经内置 WebView 获取 |
+| 登录授权 | ✅ | 内置 [WebLogin](entry/src/main/ets/pages/WebLogin.ets)：洛谷 / 牛客 / LC 登录后抓取 Cookie，再执行导入 |
 | 赛事与外链 | ✅ | ICPC/CCPC（[CPC Finder](https://cpcfinder.com/contest)）+ Codeforces + AtCoder 真实赛程；题目与赛事按钮跳转系统浏览器 |
 | 数据可视化 | ✅ | 热力图、难度分布、连续天数、总 AC 全部按本地记录计算；无数据显示 0 或空态 |
 | 通知提醒 | 🟡 | 每日 21:30 通过 `reminderAgentManager` 发布代理提醒，设置开关联动；待真机验证送达 |
@@ -51,7 +52,8 @@ $hvigor = 'D:\develop\harmony\DevEco Studio\tools\hvigor\bin\hvigorw.js'
 ```text
 entry/src/main/ets/
 ├── entryability/          EntryAbility（强制暗色 + 加载 pages/Index）
-├── pages/Index.ets        唯一 @Entry：AppBar + Tabs + 庆祝弹层 + Toast + 启动装载
+├── pages/Index.ets        主壳：AppBar + Tabs + 绑定弹层 + Toast + 启动装载
+├── pages/WebLogin.ets     内置登录页（洛谷 / 牛客 / LC），登录后抓取并保存 Cookie
 ├── views/                 四个一级页（Today / Matrix / Contest / Stats）
 ├── components/
 │   ├── Common.ets         C-01 AppBar、C-03 区块标题、C-08 指标块、C-13/C-14 徽标、C-15 进度条、空态
@@ -62,14 +64,15 @@ entry/src/main/ets/
 ├── data/
 │   ├── SeedData.ets       自洽数据集 v1
 │   ├── SyncService.ets    同步编排（拉取 → 落库 → 当日 AC → sync_job → 重试）
+│   ├── CredentialStore.ets 登录 Cookie 存取（洛谷 / 牛客 / LC）
 │   ├── ContestFeedService.ets  ICPC/CCPC 赛程（CPC Finder → 比赛卡）
 │   ├── NotificationService.ets 每日 21:30 代理提醒（reminderAgentManager）
 │   ├── db/                DbSchema（DDL v2）、DatabaseHelper（初始化/种子/读写/聚合/设置）
-│   └── remote/            Codeforces / AtCoder / Luogu / LeetCode / Cpcfinder 适配器与映射
+│   └── remote/            Codeforces / AtCoder / Luogu / LeetCode / NowCoder / Cpcfinder 适配器与映射
 ├── constants/             DesignTokens、AppConfig（Tab 配置与图标字符）
 └── utils/                 DateUtil、Difficulty、Heatmap、LinkService
 
-entry/src/test/            hypium 单测：难度/日期/打卡/四类映射/同步策略/热力图/提醒/重试
+entry/src/test/            hypium 单测：难度/日期/打卡/五类映射/同步策略/热力图/提醒/重试/统计/赛程/牛客解析
 ```
 
 ## 测试
@@ -86,9 +89,9 @@ $env:DEVECO_SDK_HOME = 'D:\develop\harmony\DevEco Studio\sdk'
 
 ## 已知限制
 
-1. **同步覆盖四个平台**：设置 →「OJ 元数据同步管理」可分别绑定 CF / AtCoder / 洛谷 / LeetCode，AppBar 同步按钮串行拉取；失败按 1/5/15 分钟退避重试。
-2. **LC 需要登录态**：适配器会读取设置项 `lc_cookie`（目前无写入 UI），未注入时提示需要登录；后续补内置 WebView 授权。
-3. **洛谷为公开记录 + UID**：未做内置 WebView 授权，部分账号会返回 403 并降级手动；Cookie（若有）暂存明文设置项，后续迁入 Asset Store。
+1. **同步覆盖五个平台**：设置 →「OJ 元数据同步管理」可绑定 CF / AtCoder / 洛谷 / LeetCode / 牛客；洛谷、LC、牛客需先点「登录获取授权」在内置 WebView 完成登录。
+2. **登录 Cookie 目前明文存储**：三个平台的 Cookie 存在 `app_setting`，上架前需迁入 Asset Store 并做失效清理。
+3. **牛客导入依赖页面结构**：登录后解析练习页 `/acm/problem/{id}` 链接，页面改版会导致解析失败；牛客无提交时间，导入记为导入时刻。
 4. **LC 难度为兜底值**：最近 AC 不含难度，统一按 ★3 计，后续按 titleSlug 补元数据。
 5. **重试仅在启动时消费**：失败会落一条重试记录并按 1/5/15 分钟退避，应用不重启则不会自动重试；无后台常驻调度。
 6. **AtCoder 难度为估算值**：按题位字母映射（A→★1 … G→★5），未接 `problem-models.json`。
@@ -97,7 +100,7 @@ $env:DEVECO_SDK_HOME = 'D:\develop\harmony\DevEco Studio\sdk'
 9. **外链跳转依赖系统浏览器**：题目/赛事按钮通过 `viewData` 打开链接，设备无浏览器或链接失效时会提示失败。
 10. **提醒依赖系统授权**：首次开启会弹通知授权；拒绝后开关回退并提示，未做独立权限引导页。
 11. **图标为字符占位**：待替换为 `SymbolGlyph` 或字体图标（设计规范见 `docs/02-设计规范/05`）。
-12. **真机回归未完成**：编译、打包、75 条单测、CF 同步与首次启动均已通过，但四页 UI、AtCoder/洛谷/LC 同步、赛程拉取与提醒送达尚未按用例逐条回归（对照 `docs/07-测试与质量/02`）。
+12. **真机回归未完成**：编译、打包、83 条单测、CF 同步与首次启动均已通过，但 WebView 登录、洛谷/牛客/LC 导入、赛程拉取与提醒送达尚未按用例逐条回归（对照 `docs/07-测试与质量/02`）。
 13. **签名缺失**：命令行产物为 unsigned HAP，安装前需配置签名。
 
 ## 版本管理
