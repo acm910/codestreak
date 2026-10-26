@@ -105,10 +105,14 @@ struct Index {
       this.cfHandle = await SyncService.loadHandle();
       this.acHandle = await SyncService.loadAtCoderHandle();
       this.lgUid = await SyncService.loadLuoguUid();
+      const retried: string = await SyncService.retryIfDue();
       this.lastSyncText = await SyncService.loadLastSync();
       this.refreshSettingsSubtitle();
       await this.loadHeatmap();
       await this.loadContestFeed();
+      if (retried.length > 0) {
+        this.showToast(retried);
+      }
     } catch (err) {
       console.error(`Database bootstrap failed: ${JSON.stringify(err)}`);
     }
@@ -238,6 +242,8 @@ struct Index {
       messages.push(cf.ok ? cf.message : `CF 失败：${cf.message}`);
       if (cf.ok) {
         dailyAc = cf.dailyAc;
+      } else {
+        await SyncService.scheduleRetry('CF', this.cfHandle);
       }
     }
     if (this.acHandle.length > 0) {
@@ -245,6 +251,8 @@ struct Index {
       messages.push(ac.ok ? ac.message : `AtCoder 失败：${ac.message}`);
       if (ac.ok && ac.dailyAc > 0) {
         dailyAc = ac.dailyAc;
+      } else if (!ac.ok) {
+        await SyncService.scheduleRetry('AC', this.acHandle);
       }
     }
     if (this.lgUid.length > 0) {
@@ -252,6 +260,8 @@ struct Index {
       messages.push(lg.ok ? lg.message : `洛谷失败：${lg.message}`);
       if (lg.ok && lg.dailyAc > 0) {
         dailyAc = lg.dailyAc;
+      } else if (!lg.ok) {
+        await SyncService.scheduleRetry('LG', this.lgUid);
       }
     }
     this.lastSyncText = await SyncService.loadLastSync();

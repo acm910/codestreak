@@ -1,5 +1,6 @@
 import { MapperResult, SyncSubmission } from '../model/SyncModels';
 import { DateUtil } from '../utils/DateUtil';
+import { RetryEntry, RetryQueue } from '../domain/RetryQueue';
 import { DatabaseHelper } from './db/DatabaseHelper';
 import { AtCoderAdapter } from './remote/AtCoderAdapter';
 import { AtCoderMapper } from './remote/AtCoderMapper';
@@ -25,6 +26,7 @@ export class SyncService {
   static readonly AC_CURSOR_KEY: string = 'ac_cursor';
   static readonly LG_UID_KEY: string = 'luogu_uid';
   static readonly LAST_SYNC_KEY: string = 'last_sync_at';
+  static readonly RETRY_KEY: string = 'sync_retry';
 
   private static async finish(status: string, fetched: number, inserted: number,
     dailyAc: number, startedAt: number): Promise<SyncOutcome> {
@@ -119,10 +121,58 @@ export class SyncService {
     await DatabaseHelper.saveSetting(SyncService.CF_HANDLE_KEY, handle.trim());
   }
 
+  /** 失败后登记一次重试（1 分钟后；后续按 5/15 分钟退避） */
+  static async scheduleRetry(platform: string, target: string): Promise<void> {
+    const entry: RetryEntry | null = RetryQueue.afterFailure(platform, target, 0, Date.now());
+    if (entry !== null) {
+      await DatabaseHelper.saveSetting(SyncService.RETRY_KEY, RetryQueue.encode(entry));
+    }
+  }
+
+  static async clearRetry(): Promise<void> {
+    await DatabaseHelper.saveSetting(SyncService.RETRY_KEY, '');
+  }
+
+  /** 启动时消费到期重试；返回可展示的提示（无动作返回空串） */
+  static async retryIfDue(): Promise<string> {
+    const raw: string = await DatabaseHelper.loadSetting(SyncService.RETRY_KEY);
+    const entry: RetryEntry | null = RetryQueue.decode(raw);
+    if (entry === null) {
+      if (raw.length > 0) {
+        await SyncService.clearRetry();
+      }
+      return '';
+    }
+    if (!RetryQueue.isDue(entry, Date.now())) {
+      return '';
+    }
+    let outcome: SyncOutcome = { ok: false, message: '', fetched: 0, inserted: 0, dailyAc: 0 };
+    if (entry.platform === 'CF') {
+      outcome = await SyncService.syncCodeforces(entry.target);
+    } else if (entry.platform === 'AC') {
+      outcome = await SyncService.syncAtCoder(entry.target);
+    } else if (entry.platform === 'LG') {
+      outcome = await SyncService.syncLuogu(entry.target);
+    } else {
+      await SyncService.clearRetry();
+      return '';
+    }
+    if (outcome.ok) {
+      await SyncService.clearRetry();
+      return `自动重试成功：${outcome.message}`;
+    }
+    const next: RetryEntry | null = RetryQueue.afterFailure(entry.platform, entry.target, entry.attempt, Date.now());
+    if (next === null) {
+      await SyncService.clearRetry();
+      return '自动重试 3 次仍失败，已降级为手动模式';
+    }
+    await DatabaseHelper.saveSetting(SyncService.RETRY_KEY, RetryQueue.encode(next));
+    return '';
+  }
+
   static async loadLuoguUid(): Promise<string> {
     return DatabaseHelper.loadSetting(SyncService.LG_UID_KEY);
   }
-
   static async saveLuoguUid(uid: string): Promise<void> {
     await DatabaseHelper.saveSetting(SyncService.LG_UID_KEY, uid.trim());
   }
