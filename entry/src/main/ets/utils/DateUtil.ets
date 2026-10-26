@@ -39,6 +39,22 @@ export class DateUtil {
     return `${date.getFullYear()}-${DateUtil.pad2(date.getMonth() + 1)}-${DateUtil.pad2(date.getDate())}`;
   }
 
+  /** YYYY-MM-DD → 本地 Date */
+  static parseKey(key: string): Date {
+    const parts: string[] = key.split('-');
+    if (parts.length !== 3) {
+      return new Date();
+    }
+    return new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+  }
+
+  /** 日期平移 n 天，返回 key */
+  static shiftKey(key: string, days: number): string {
+    const day: Date = DateUtil.parseKey(key);
+    day.setDate(day.getDate() + days);
+    return DateUtil.dateKey(day);
+  }
+
   /** 相对日期文案：今天 / 明天 / 周X / 下周X / MM-DD */
   static relativeDay(target: Date, now: Date): string {
     const startOfToday: number = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();

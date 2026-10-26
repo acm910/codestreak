@@ -2,7 +2,7 @@ import { common } from '@kit.AbilityKit';
 import { relationalStore } from '@kit.ArkData';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import { SyncSubmission } from '../../model/SyncModels';
-import { DailyAcCount } from '../../model/Entities';
+import { AcStats, DailyAcCount } from '../../model/Entities';
 import { DateUtil } from '../../utils/DateUtil';
 import { DbSchema } from './DbSchema';
 
@@ -184,8 +184,119 @@ export class DatabaseHelper {
     }
   }
 
-  static async saveCheckIn(record: CheckInRecord, streakCurrent: number, streakLongest: number): Promise<void> {
+  /** 全部打卡记录（按日期升序），用于连续天数与周矩阵 */
+  static async loadCheckIns(): Promise<CheckInRecord[]> {
     const store: relationalStore.RdbStore | null = DatabaseHelper.store;
+    if (store === null) {
+      return [];
+    }
+    const list: CheckInRecord[] = [];
+    try {
+      const resultSet: relationalStore.ResultSet = await store.querySql(
+        'SELECT checkin_date, goal, target_progress, daily_ac_count, status FROM check_in ORDER BY checkin_date'
+      );
+      while (resultSet.goToNextRow()) {
+        const record: CheckInRecord = {
+          date: resultSet.getString(resultSet.getColumnIndex('checkin_date')),
+          goal: resultSet.getLong(resultSet.getColumnIndex('goal')),
+          targetProgress: resultSet.getLong(resultSet.getColumnIndex('target_progress')),
+          dailyAcCount: resultSet.getLong(resultSet.getColumnIndex('daily_ac_count')),
+          status: resultSet.getString(resultSet.getColumnIndex('status'))
+        };
+        list.push(record);
+      }
+      resultSet.close();
+    } catch (err) {
+      hilog.error(DOMAIN, TAG, 'loadCheckIns failed: %{public}s', JSON.stringify(err));
+    }
+    return list;
+  }
+
+  /** 达标打卡天数（target_progress ≥ goal） */
+  static async countCheckInDays(): Promise<number> {
+    const store: relationalStore.RdbStore | null = DatabaseHelper.store;
+    if (store === null) {
+      return 0;
+    }
+    try {
+      const resultSet: relationalStore.ResultSet = await store.querySql(
+        'SELECT COUNT(1) AS c FROM check_in WHERE target_progress >= goal'
+      );
+      let count: number = 0;
+      if (resultSet.goToFirstRow()) {
+        count = resultSet.getLong(resultSet.getColumnIndex('c'));
+      }
+      resultSet.close();
+      return count;
+    } catch (err) {
+      return 0;
+    }
+  }
+
+  /** 已 AC 的题号集合（题单矩阵状态用） */
+  static async loadSolvedKeys(): Promise<string[]> {
+    const store: relationalStore.RdbStore | null = DatabaseHelper.store;
+    if (store === null) {
+      return [];
+    }
+    const keys: string[] = [];
+    try {
+      const resultSet: relationalStore.ResultSet = await store.querySql(
+        'SELECT DISTINCT problem_key FROM submission WHERE is_ac = 1'
+      );
+      while (resultSet.goToNextRow()) {
+        keys.push(resultSet.getString(resultSet.getColumnIndex('problem_key')));
+      }
+      resultSet.close();
+    } catch (err) {
+      hilog.error(DOMAIN, TAG, 'loadSolvedKeys failed: %{public}s', JSON.stringify(err));
+    }
+    return keys;
+  }
+
+  /** 真实 AC 聚合：去重题数、平台数、难度五档 */
+  static async loadAcStats(): Promise<AcStats> {
+    const store: relationalStore.RdbStore | null = DatabaseHelper.store;
+    const stats: AcStats = { solved: 0, platforms: 0, difficulty: [0, 0, 0, 0, 0] };
+    if (store === null) {
+      return stats;
+    }
+    try {
+      const solvedSet: relationalStore.ResultSet = await store.querySql(
+        'SELECT COUNT(DISTINCT problem_key) AS c FROM submission WHERE is_ac = 1'
+      );
+      if (solvedSet.goToFirstRow()) {
+        stats.solved = solvedSet.getLong(solvedSet.getColumnIndex('c'));
+      }
+      solvedSet.close();
+
+      const platformSet: relationalStore.ResultSet = await store.querySql(
+        'SELECT COUNT(DISTINCT platform) AS c FROM submission WHERE is_ac = 1'
+      );
+      if (platformSet.goToFirstRow()) {
+        stats.platforms = platformSet.getLong(platformSet.getColumnIndex('c'));
+      }
+      platformSet.close();
+
+      const bucketSet: relationalStore.ResultSet = await store.querySql(
+        'SELECT CAST(difficulty_norm + 0.5 AS INTEGER) AS star, COUNT(DISTINCT problem_key) AS c ' +
+          'FROM submission WHERE is_ac = 1 GROUP BY star'
+      );
+      while (bucketSet.goToNextRow()) {
+        const star: number = bucketSet.getLong(bucketSet.getColumnIndex('star'));
+        const count: number = bucketSet.getLong(bucketSet.getColumnIndex('c'));
+        if (star >= 1 && star <= 5) {
+          stats.difficulty[star - 1] = count;
+        }
+      }
+      bucketSet.close();
+    } catch (err) {
+      hilog.error(DOMAIN, TAG, 'loadAcStats failed: %{public}s', JSON.stringify(err));
+    }
+    return stats;
+  }
+
+  static async saveCheckIn(record: CheckInRecord, streakCurrent: number, streakLongest: number): Promise<void> {    const store: relationalStore.RdbStore | null = DatabaseHelper.store;
     if (store === null) {
       return;
     }

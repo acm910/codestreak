@@ -31,7 +31,7 @@ export struct CsStreakHero {
   @Param targetProgress: number = 1;
   @Param target: number = 2;
   @Param weekNumber: number = 42;
-  @Param beatPercent: number = 89.4;
+  @Param beatPercent: number = 0;
   @Param cells: WeekCell[] = [];
 
   private statusText(): string {
@@ -48,9 +48,11 @@ export struct CsStreakHero {
         Text(`本周打卡矩阵 (WEEK ${this.weekNumber})`)
           .fontSize(CsFont.LABEL_SM)
           .fontColor(CsColor.TEXT_TERTIARY)
-        Text(`击败 ${Math.round(this.beatPercent)}% 工程师`)
-          .fontSize(CsFont.LABEL_SM)
-          .fontColor(CsColor.SECONDARY)
+        if (this.beatPercent > 0) {
+          Text(`击败 ${Math.round(this.beatPercent)}% 工程师`)
+            .fontSize(CsFont.LABEL_SM)
+            .fontColor(CsColor.SECONDARY)
+        }
       }
       .width('100%')
       .justifyContent(FlexAlign.SpaceBetween)
@@ -500,7 +502,7 @@ export struct CsUpsolveGauge {
           Text('TARGET 80% (15/20 题已解决)')
             .fontSize(CsFont.LABEL_SM)
             .fontColor(CsColor.TEXT_TERTIARY)
-          Text('Lv.3 架构师级执行力')
+          Text('赛后补题完成率')
             .fontSize(CsFont.LABEL_SM)
             .fontColor(CsColor.TEXT_SECONDARY)
         }
@@ -636,22 +638,25 @@ export struct CsUpsolveCard {
     Column({ space: CsSpace.SM }) {
       Row() {
         Column({ space: 2 }) {
-          Text(this.task.contestName)
+          Text(this.task.contestName.length > 0 ? this.task.contestName : '暂无待补题目')
             .fontSize(CsFont.BODY_LG)
             .fontWeight(FontWeight.Bold)
             .fontColor(CsColor.TEXT_PRIMARY)
-          Text(this.task.resultText)
+          Text(this.task.resultText.length > 0 ? this.task.resultText
+            : '完成比赛并同步赛果后，这里会自动生成补题清单')
             .fontSize(CsFont.BODY_SM)
             .fontColor(CsColor.TEXT_SECONDARY)
         }
         .alignItems(HorizontalAlign.Start)
         .layoutWeight(1)
-        Text(`${this.task.percent}% 完成`)
-          .fontSize(CsFont.LABEL_SM)
-          .fontColor(CsColor.SECONDARY)
-          .padding({ left: 8, right: 8, top: 4, bottom: 4 })
-          .borderRadius(CsRadius.SM)
-          .backgroundColor(CsColor.SURFACE_CONTAINER)
+        if (this.task.problems.length > 0) {
+          Text(`${this.task.percent}% 完成`)
+            .fontSize(CsFont.LABEL_SM)
+            .fontColor(CsColor.SECONDARY)
+            .padding({ left: 8, right: 8, top: 4, bottom: 4 })
+            .borderRadius(CsRadius.SM)
+            .backgroundColor(CsColor.SURFACE_CONTAINER)
+        }
       }
       .width('100%')
 
@@ -709,28 +714,30 @@ export struct CsUpsolveCard {
         .backgroundColor(item.focused ? CsColor.SURFACE_HIGH : CsColor.SURFACE_CONTAINER)
       }, (item: UpsolveProblem) => item.letter)
 
-      Row({ space: 6 }) {
-        Text('建议参考官方 Editorial 的 MEX 状态有向建图')
-          .fontSize(CsFont.BODY_SM)
-          .fontColor(CsColor.TEXT_SECONDARY)
-          .layoutWeight(1)
-        Text('去CF补题')
-          .fontSize(CsFont.LABEL_SM)
-          .fontColor(CsColor.TERTIARY)
-          .padding({ left: 8, right: 8, top: 4, bottom: 4 })
-          .borderRadius(CsRadius.SM)
-          .backgroundColor(CsColor.SURFACE_HIGHEST)
-          .onClick(() => this.onOpen('D'))
-        Text('打卡AC')
-          .fontSize(CsFont.LABEL_SM)
-          .fontWeight(FontWeight.Bold)
-          .fontColor(CsColor.PRIMARY_ON)
-          .padding({ left: 8, right: 8, top: 4, bottom: 4 })
-          .borderRadius(CsRadius.SM)
-          .backgroundColor(CsColor.PRIMARY_CONTAINER)
-          .onClick(() => this.onMark('D'))
+      if (this.task.problems.length > 0) {
+        Row({ space: 6 }) {
+          Text('建议参考官方 Editorial 的 MEX 状态有向建图')
+            .fontSize(CsFont.BODY_SM)
+            .fontColor(CsColor.TEXT_SECONDARY)
+            .layoutWeight(1)
+          Text('去CF补题')
+            .fontSize(CsFont.LABEL_SM)
+            .fontColor(CsColor.TERTIARY)
+            .padding({ left: 8, right: 8, top: 4, bottom: 4 })
+            .borderRadius(CsRadius.SM)
+            .backgroundColor(CsColor.SURFACE_HIGHEST)
+            .onClick(() => this.onOpen('D'))
+          Text('打卡AC')
+            .fontSize(CsFont.LABEL_SM)
+            .fontWeight(FontWeight.Bold)
+            .fontColor(CsColor.PRIMARY_ON)
+            .padding({ left: 8, right: 8, top: 4, bottom: 4 })
+            .borderRadius(CsRadius.SM)
+            .backgroundColor(CsColor.PRIMARY_CONTAINER)
+            .onClick(() => this.onMark('D'))
+        }
+        .width('100%')
       }
-      .width('100%')
     }
     .padding(CsSpace.MD)
     .borderRadius(CsRadius.XL)
@@ -742,10 +749,10 @@ export struct CsUpsolveCard {
 /** C-31 用户卡 */
 @ComponentV2
 export struct CsProfileCard {
-  @Param name: string = 'AlgoMaster_Lin';
-  @Param uid: string = '#9042';
-  @Param totalAc: number = 384;
-  @Param platforms: string[] = ['LeetCode 已连', 'Codeforces 已连', '洛谷 绑定→'];
+  @Param name: string = '我的账号';
+  @Param uid: string = '';
+  @Param totalAc: number = 0;
+  @Param platforms: string[] = ['未绑定'];
   @Event onSync: () => void = () => {
   };
 
@@ -768,14 +775,8 @@ export struct CsProfileCard {
                 .fontSize(CsFont.H3)
                 .fontWeight(FontWeight.Bold)
                 .fontColor(CsColor.TEXT_PRIMARY)
-              Text('PRO')
-                .fontSize(CsFont.LABEL_SM)
-                .fontColor(CsColor.PRIMARY)
-                .padding({ left: 5, right: 5, top: 1, bottom: 1 })
-                .borderRadius(CsRadius.SM)
-                .backgroundColor(withAlpha(CsColor.PRIMARY, 0.2))
             }
-            Text(`UID: ${this.uid} // TIER-1 CODER`)
+            Text('本地账号 · 数据仅存本机')
               .fontSize(CsFont.LABEL_SM)
               .fontColor(CsColor.TEXT_TERTIARY)
           }

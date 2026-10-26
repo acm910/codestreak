@@ -1,8 +1,9 @@
 import { CsColor, CsFont, CsRadius, CsSpace } from '../constants/DesignTokens';
-import { ContestItem, CountdownState, UpsolveTask, WeekStripDay } from '../model/Entities';
-import { ContestStatus, PlatformCode } from '../model/Enums';
+import { ContestItem, UpsolveTask, WeekStripDay } from '../model/Entities';
+import { PlatformCode } from '../model/Enums';
+import { DateUtil } from '../utils/DateUtil';
 import { CsPill, CsSectionHeader } from '../components/Common';
-import { CsContestCard, CsCountdownHud, CsUpsolveCard, CsUpsolveGauge } from '../components/Cards';
+import { CsContestCard, CsUpsolveCard, CsUpsolveGauge } from '../components/Cards';
 import { CsWeekStrip } from '../components/Visuals';
 
 /** P-03 比赛日历页 */
@@ -15,62 +16,14 @@ export struct ContestView {
   };
 
   @Local filterIndex: number = 0;
-  @Local percent: number = 75;
-  @Local solved: number = 15;
-  @Local pending: number = 5;
+  @Local percent: number = 0;
+  @Local solved: number = 0;
+  @Local pending: number = 0;
   @Local markedD: boolean = false;
-  @Local selectedDay: number = 2;
+  @Local selectedDay: number = (new Date().getDay() + 6) % 7;
   @Local hint: string = '';
-  @Local countdownDays: string = '01';
-  @Local countdownHours: string = '04';
-  @Local countdownMinutes: string = '20';
-  @Local countdownSeconds: string = '10';
 
-  private totalSeconds: number = 1 * 86400 + 4 * 3600 + 20 * 60 + 10;
-  private timerId: number = -1;
-  private filters: string[] = ['全部 (10)', 'ICPC / CCPC 高校赛', 'Codeforces', 'LeetCode', 'AtCoder', '洛谷'];
-
-  aboutToAppear(): void {
-    this.timerId = setInterval(() => {
-      if (this.totalSeconds > 0) {
-        this.totalSeconds = this.totalSeconds - 1;
-      }
-      this.refreshCountdown();
-    }, 1000);
-  }
-
-  aboutToDisappear(): void {
-    if (this.timerId >= 0) {
-      clearInterval(this.timerId);
-      this.timerId = -1;
-    }
-  }
-
-  private pad(value: number): string {
-    return value < 10 ? `0${value}` : `${value}`;
-  }
-
-  private refreshCountdown(): void {
-    const total: number = Math.max(0, this.totalSeconds);
-    const d: number = Math.floor(total / 86400);
-    const h: number = Math.floor((total % 86400) / 3600);
-    const m: number = Math.floor((total % 3600) / 60);
-    const s: number = total % 60;
-    this.countdownDays = this.pad(d);
-    this.countdownHours = this.pad(h);
-    this.countdownMinutes = this.pad(m);
-    this.countdownSeconds = this.pad(s);
-  }
-
-  private countdownState(): CountdownState {
-    const state: CountdownState = {
-      days: this.countdownDays,
-      hours: this.countdownHours,
-      minutes: this.countdownMinutes,
-      seconds: this.countdownSeconds
-    };
-    return state;
-  }
+  private filters: string[] = ['全部', 'ICPC / CCPC 高校赛', 'Codeforces', 'LeetCode', 'AtCoder', '洛谷'];
 
   private filteredContests(): ContestItem[] {
     if (this.filterIndex === 0) {
@@ -101,14 +54,7 @@ export struct ContestView {
   }
 
   private markUpsolve(): void {
-    if (this.markedD) {
-      return;
-    }
-    this.markedD = true;
-    this.percent = 80;
-    this.solved = 16;
-    this.pending = 4;
-    this.hint = '已记录 D 题补题，完成率升至 80%';
+    this.hint = '暂无可补题目';
   }
 
   @Builder
@@ -133,26 +79,19 @@ export struct ContestView {
   build() {
     Scroll() {
       Column({ space: CsSpace.LG }) {
-        CsCountdownHud({
-          state: this.countdownState(),
-          onRemind: () => {
-            this.hint = '已开启赛前 15 分钟推送提醒';
-          },
-          onTeam: () => {
-            this.hint = '已向队友发出赛程确认';
-          },
-          onExport: () => {
-            this.hint = '已将赛事日历同步为 .ics';
-          }
-        })
+        if (this.task.problems.length > 0) {
+          CsUpsolveGauge({
+            percent: this.percent,
+            solved: this.solved,
+            pending: this.pending
+          })
+        }
 
-        CsUpsolveGauge({
-          percent: this.percent,
-          solved: this.solved,
-          pending: this.pending
+        CsSectionHeader({
+          title: '跨平台比赛日历',
+          meta: `W${DateUtil.isoWeek(new Date())} • ${new Date().getFullYear()}`,
+          accent: CsColor.TERTIARY
         })
-
-        CsSectionHeader({ title: '跨平台比赛日历', meta: 'W23 • 2025', accent: CsColor.TERTIARY })
         CsWeekStrip({
           days: this.days,
           selected: this.selectedDay,
@@ -162,17 +101,32 @@ export struct ContestView {
         })
         this.filterChips()
 
-        ForEach(this.filteredContests(), (item: ContestItem) => {
-          CsContestCard({
-            contest: item,
-            onPrimary: (url: string) => {
-              this.onOpenUrl(url);
-            },
-            onSecondary: () => {
-              this.hint = '已同步赛程至系统日历';
-            }
-          })
-        }, (item: ContestItem) => item.id)
+        if (this.filteredContests().length === 0) {
+          Column({ space: 4 }) {
+            Text('暂无可展示的赛事')
+              .fontSize(CsFont.BODY)
+              .fontColor(CsColor.TEXT_SECONDARY)
+            Text('赛事数据来自公开赛程源，未获取到时不会展示示例赛程')
+              .fontSize(CsFont.LABEL_SM)
+              .fontColor(CsColor.TEXT_TERTIARY)
+              .textAlign(TextAlign.Center)
+          }
+          .width('100%')
+          .padding({ top: CsSpace.LG, bottom: CsSpace.LG })
+          .alignItems(HorizontalAlign.Center)
+        } else {
+          ForEach(this.filteredContests(), (item: ContestItem) => {
+            CsContestCard({
+              contest: item,
+              onPrimary: (url: string) => {
+                this.onOpenUrl(url);
+              },
+              onSecondary: () => {
+                this.hint = '已同步赛程至系统日历';
+              }
+            })
+          }, (item: ContestItem) => item.id)
+        }
 
         Row() {
           Row({ space: CsSpace.SM }) {
@@ -186,7 +140,9 @@ export struct ContestView {
               .fontWeight(FontWeight.Bold)
               .fontColor(CsColor.TEXT_PRIMARY)
           }
-          CsPill({ text: 'CF Div.3 回溯追踪', textColor: CsColor.PRIMARY, bgColor: CsColor.SURFACE_CONTAINER })
+          if (this.task.problems.length > 0) {
+            CsPill({ text: '赛后补题追踪', textColor: CsColor.PRIMARY, bgColor: CsColor.SURFACE_CONTAINER })
+          }
         }
         .width('100%')
         .justifyContent(FlexAlign.SpaceBetween)

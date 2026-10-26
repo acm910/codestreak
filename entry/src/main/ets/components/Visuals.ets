@@ -271,7 +271,21 @@ export struct CsLeaderboard {
 
   build() {
     Column({ space: CsSpace.SM }) {
-      ForEach(this.rows, (row: LeaderRow) => {
+      if (this.rows.length === 0) {
+        Column({ space: 4 }) {
+          Text('暂无好友榜单')
+            .fontSize(CsFont.BODY)
+            .fontColor(CsColor.TEXT_SECONDARY)
+          Text('邀请同学加入后，这里会展示你们的连续打卡对比')
+            .fontSize(CsFont.LABEL_SM)
+            .fontColor(CsColor.TEXT_TERTIARY)
+            .textAlign(TextAlign.Center)
+        }
+        .width('100%')
+        .padding({ top: CsSpace.LG, bottom: CsSpace.LG })
+        .alignItems(HorizontalAlign.Center)
+      } else {
+        ForEach(this.rows, (row: LeaderRow) => {
         Row({ space: CsSpace.SM }) {
           if (row.isYou) {
             Row()
@@ -333,6 +347,7 @@ export struct CsLeaderboard {
         .backgroundColor(row.isYou ? CsColor.SURFACE_BRIGHT : CsColor.SURFACE_HIGH)
         .alignItems(VerticalAlign.Center)
       }, (row: LeaderRow) => `${row.rank}-${row.name}`)
+      }
     }
     .width('100%')
   }
@@ -369,8 +384,7 @@ export struct CsSkeleton {
 /** 今日战报卡（P-01 底部） */
 @ComponentV2
 export struct CsDailyReport {
-  @Param focusMinutes: number = 42;
-  @Param solvedCount: number = 1;
+  @Param solvedCount: number = 0;
   @Param target: number = 2;
 
   build() {
@@ -383,45 +397,27 @@ export struct CsDailyReport {
             .fontWeight(FontWeight.Bold)
             .fontColor(CsColor.TEXT_PRIMARY)
         }
-        Text('状态平稳')
+        Text('按本地打卡记录')
           .fontSize(CsFont.LABEL_SM)
-          .fontColor(CsColor.SECONDARY)
+          .fontColor(CsColor.TEXT_TERTIARY)
       }
       .width('100%')
       .justifyContent(FlexAlign.SpaceBetween)
 
-      Row({ space: CsSpace.SM }) {
-        Column({ space: 2 }) {
-          Text('今日沉浸时间').fontSize(CsFont.LABEL_SM).fontColor(CsColor.TEXT_TERTIARY)
-          Row({ space: 3 }) {
-            Text(`${this.focusMinutes}`).fontSize(CsFont.H3).fontWeight(FontWeight.Bold)
-              .fontColor(CsColor.PRIMARY)
-            Text('分钟').fontSize(CsFont.BODY_SM).fontColor(CsColor.TEXT_SECONDARY)
-          }
-          .alignItems(VerticalAlign.Bottom)
+      Column({ space: 2 }) {
+        Text('打卡进度').fontSize(CsFont.LABEL_SM).fontColor(CsColor.TEXT_TERTIARY)
+        Row({ space: 3 }) {
+          Text(`${this.solvedCount}`).fontSize(CsFont.H3).fontWeight(FontWeight.Bold)
+            .fontColor(CsColor.SECONDARY)
+          Text(`/ ${this.target} 题`).fontSize(CsFont.BODY_SM).fontColor(CsColor.TEXT_SECONDARY)
         }
-        .layoutWeight(1)
-        .padding(CsSpace.SM)
-        .borderRadius(CsRadius.LG)
-        .backgroundColor(CsColor.SURFACE_CONTAINER)
-        .alignItems(HorizontalAlign.Start)
-
-        Column({ space: 2 }) {
-          Text('算法题库攻克').fontSize(CsFont.LABEL_SM).fontColor(CsColor.TEXT_TERTIARY)
-          Row({ space: 3 }) {
-            Text(`${this.solvedCount}`).fontSize(CsFont.H3).fontWeight(FontWeight.Bold)
-              .fontColor(CsColor.SECONDARY)
-            Text(`/ ${this.target} 题`).fontSize(CsFont.BODY_SM).fontColor(CsColor.TEXT_SECONDARY)
-          }
-          .alignItems(VerticalAlign.Bottom)
-        }
-        .layoutWeight(1)
-        .padding(CsSpace.SM)
-        .borderRadius(CsRadius.LG)
-        .backgroundColor(CsColor.SURFACE_CONTAINER)
-        .alignItems(HorizontalAlign.Start)
+        .alignItems(VerticalAlign.Bottom)
       }
       .width('100%')
+      .padding(CsSpace.SM)
+      .borderRadius(CsRadius.LG)
+      .backgroundColor(CsColor.SURFACE_CONTAINER)
+      .alignItems(HorizontalAlign.Start)
     }
     .padding(CsSpace.GUTTER)
     .borderRadius(CsRadius.XL)

@@ -2,19 +2,20 @@ import { common } from '@kit.AbilityKit';
 import { Glyph, TabSpec } from '../constants/AppConfig';
 import { CsColor, CsFont, CsRadius, CsSpace, withAlpha } from '../constants/DesignTokens';
 import { SeedData } from '../data/SeedData';
-import { DatabaseHelper } from '../data/db/DatabaseHelper';
+import { DatabaseHelper, CheckInRecord } from '../data/db/DatabaseHelper';
 import { SyncOutcome, SyncService } from '../data/SyncService';
 import { ContestFeedService } from '../data/ContestFeedService';
 import { NotificationService } from '../data/NotificationService';
 import { CheckInResult, CheckInService } from '../domain/CheckInService';
+import { StatsService, StreakResult } from '../domain/StatsService';
 import { DateUtil } from '../utils/DateUtil';
 import { LinkService } from '../utils/LinkService';
 import { Heatmap } from '../utils/Heatmap';
 import {
-  BadgeItem, ChallengeCardData, CollectionCard, ContestItem, DailyAcCount, DifficultyRow, LeaderRow, Problem,
-  SettingRow, TargetCardData, TodaySnapshot, UpsolveTask, WeekCell, WeekStripDay
+  AcStats, BadgeItem, ChallengeCardData, CollectionCard, ContestItem, DailyAcCount, DifficultyRow, LeaderRow,
+  Problem, SettingRow, TargetCardData, TodaySnapshot, UpsolveTask, WeekCell, WeekStripDay
 } from '../model/Entities';
-import { CheckInStatus, TabIndex } from '../model/Enums';
+import { CheckInStatus, SolveStatus, TabIndex } from '../model/Enums';
 import { CsAppBar } from '../components/Common';
 import { TodayView } from '../views/TodayView';
 import { MatrixView } from '../views/MatrixView';
@@ -33,7 +34,7 @@ struct Index {
   @Local toast: string = '';
   @Local totalAc: number = 384;
   @Local totalDays: number = 152;
-  @Local makeupCredits: number = 2;
+  @Local makeupCredits: number = 0;
   @Local cfHandle: string = '';
   @Local acHandle: string = '';
   @Local lgUid: string = '';
@@ -42,18 +43,19 @@ struct Index {
   @Local handleDraft: string = '';
   @Local bindPlatform: string = 'CF';
   @Local lastSyncText: string = '';
+  @Local platformLabels: string[] = ['CF 未绑定', 'AtCoder 未绑定', '洛谷 未绑定', 'LC 未绑定'];
 
   private target: TargetCardData = SeedData.targetCard();
   private challenge: ChallengeCardData = SeedData.challengeCard();
-  private cells: WeekCell[] = SeedData.weekCells();
+  @Local cells: WeekCell[] = SeedData.weekCells();
   private collections: CollectionCard[] = SeedData.collections();
-  private problems: Problem[] = SeedData.matrixProblems();
+  @Local problems: Problem[] = SeedData.matrixProblems();
   private task: UpsolveTask = SeedData.upsolve();
-  private weekDays: WeekStripDay[] = SeedData.weekStrip();
+  @Local weekDays: WeekStripDay[] = SeedData.weekStrip();
   @Local heatmap: number[] = SeedData.heatmap();
-  private difficultyRows: DifficultyRow[] = SeedData.difficultyRows();
-  private badges: BadgeItem[] = SeedData.badges();
-  private leaders: LeaderRow[] = SeedData.leaderboard();
+  @Local difficultyRows: DifficultyRow[] = SeedData.difficultyRows();
+  @Local badges: BadgeItem[] = SeedData.badges();
+  @Local leaders: LeaderRow[] = SeedData.leaderboard();
   @Local settings: SettingRow[] = SeedData.settings();
   @Local contests: ContestItem[] = SeedData.contests();
 
@@ -78,37 +80,59 @@ struct Index {
     try {
       const context: common.UIAbilityContext = getContext(this) as common.UIAbilityContext;
       await DatabaseHelper.init(context);
-      const user = await DatabaseHelper.loadUser();
       const row = await DatabaseHelper.loadCheckIn(DateUtil.todayKey());
+      const checkIns: CheckInRecord[] = await DatabaseHelper.loadCheckIns();
+      const achieved: string[] = [];
+      for (const record of checkIns) {
+        if (record.targetProgress >= record.goal || record.status === 'achieved') {
+          achieved.push(record.date);
+        }
+      }
+      const todayKey: string = DateUtil.todayKey();
+      const streak: StreakResult = StatsService.streaks(achieved, todayKey);
+      const ac: AcStats = await DatabaseHelper.loadAcStats();
+      const todayAc: number = await DatabaseHelper.countDailyAc(todayKey);
       const base: TodaySnapshot = this.snapshot;
       const merged: TodaySnapshot = {
         status: row === null ? base.status : this.statusOf(row.status),
         targetProgress: row === null ? base.targetProgress : row.targetProgress,
         dailyTarget: row === null ? base.dailyTarget : row.goal,
-        streakDays: user === null ? base.streakDays : user.streakCurrent,
-        longestStreak: user === null ? base.longestStreak : user.streakLongest,
-        todayAcCount: row === null ? base.todayAcCount : row.dailyAcCount,
-        focusMinutes: base.focusMinutes,
-        beatPercent: base.beatPercent,
-        weekNumber: base.weekNumber
+        streakDays: streak.current,
+        longestStreak: streak.longest,
+        todayAcCount: todayAc,
+        focusMinutes: 0,
+        beatPercent: 0,
+        weekNumber: DateUtil.isoWeek(new Date())
       };
       this.snapshot = merged;
-      if (user !== null) {
-        this.totalAc = user.totalAc;
-        this.totalDays = user.totalDays;
-        this.makeupCredits = user.repairCards;
-      }
+      this.totalAc = ac.solved;
+      this.totalDays = await DatabaseHelper.countCheckInDays();
+      this.makeupCredits = 0;      this.difficultyRows = StatsService.difficultyRows(ac.difficulty);
+      this.badges = StatsService.badges(streak, ac);
+      this.cells = StatsService.weekCells(achieved, new Date());
+      this.weekDays = StatsService.weekStrip(achieved, new Date());
+      this.leaders = [];
       if (row !== null) {
         this.targetSolved = row.targetProgress >= 1;
         this.challengeSolved = row.targetProgress >= 2;
         this.celebrated = row.targetProgress >= row.goal;
       }
+      await this.loadMatrixStatuses();
       this.cfHandle = await SyncService.loadHandle();
       this.acHandle = await SyncService.loadAtCoderHandle();
       this.lgUid = await SyncService.loadLuoguUid();
       this.lcHandle = await SyncService.loadLeetCodeHandle();
+      const labels: string[] = [
+        this.cfHandle.length > 0 ? 'CF 已绑定' : 'CF 未绑定',
+        this.acHandle.length > 0 ? 'AtCoder 已绑定' : 'AtCoder 未绑定',
+        this.lgUid.length > 0 ? '洛谷 已绑定' : '洛谷 未绑定',
+        this.lcHandle.length > 0 ? 'LC 已绑定' : 'LC 未绑定'
+      ];
+      this.platformLabels = labels;
       const retried: string = await SyncService.retryIfDue();
       this.lastSyncText = await SyncService.loadLastSync();
+      const reminderId: string = await DatabaseHelper.loadSetting('daily_reminder_id');
+      this.updateReminderSetting(reminderId.length > 0);
       this.refreshSettingsSubtitle();
       await this.loadHeatmap();
       await this.loadContestFeed();
@@ -120,26 +144,37 @@ struct Index {
     }
   }
 
+  /** 题单矩阵状态：以本地 AC 记录为准，无记录保持待做 */
+  private async loadMatrixStatuses(): Promise<void> {
+    const solvedKeys: string[] = await DatabaseHelper.loadSolvedKeys();
+    if (solvedKeys.length === 0) {
+      return;
+    }
+    const set: Set<string> = new Set<string>(solvedKeys);
+    const next: Problem[] = [];
+    for (const item of this.problems) {
+      if (set.has(item.code)) {
+        const updated: Problem = {
+          id: item.id, platform: item.platform, platformName: item.platformName, code: item.code,
+          title: item.title, titleEn: item.titleEn, difficulty: item.difficulty,
+          nativeLabel: item.nativeLabel, tags: item.tags, status: SolveStatus.SOLVED,
+          sourceText: item.sourceText, url: item.url
+        };
+        next.push(updated);
+      } else {
+        next.push(item);
+      }
+    }
+    this.problems = next;
+  }
+
   private async loadHeatmap(): Promise<void> {
     try {
-      const total: number = await DatabaseHelper.totalSubmissions();
-      if (total <= 0) {
-        return;
-      }
       const start: Date = Heatmap.gridStart(new Date());
       const counts: DailyAcCount[] = await DatabaseHelper.loadDailyCounts(
         DateUtil.dateKey(start), DateUtil.todayKey()
       );
-      const levels: number[] = Heatmap.buildLevels(start, counts);
-      let active: number = 0;
-      for (const level of levels) {
-        if (level > 0) {
-          active = active + 1;
-        }
-      }
-      if (active > 0) {
-        this.heatmap = levels;
-      }
+      this.heatmap = Heatmap.buildLevels(start, counts);
     } catch (err) {
       console.error(`Heatmap build failed: ${JSON.stringify(err)}`);
     }
@@ -675,6 +710,7 @@ struct Index {
               totalAc: this.totalAc,
               totalDays: this.totalDays,
               makeupCredits: this.makeupCredits,
+              platforms: this.platformLabels,
               cells: this.heatmap,
               difficultyRows: this.difficultyRows,
               badges: this.badges,
@@ -701,6 +737,9 @@ struct Index {
               },
               onReminderToggle: (enabled: boolean) => {
                 this.toggleReminder(enabled);
+              },
+              onSync: () => {
+                this.syncNow();
               }
             })
           }

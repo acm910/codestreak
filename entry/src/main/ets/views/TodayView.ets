@@ -10,14 +10,14 @@ import { CsChallengeCard, CsStreakHero, CsTargetCard } from '../components/Cards
 export struct TodayView {
   @Param snapshot: TodaySnapshot = {
     status: CheckInStatus.PENDING,
-    targetProgress: 1,
+    targetProgress: 0,
     dailyTarget: 2,
-    streakDays: 28,
-    longestStreak: 64,
-    todayAcCount: 3,
-    focusMinutes: 42,
-    beatPercent: 89.4,
-    weekNumber: 42
+    streakDays: 0,
+    longestStreak: 0,
+    todayAcCount: 0,
+    focusMinutes: 0,
+    beatPercent: 0,
+    weekNumber: 1
   };
   @Require @Param target: TargetCardData;
   @Require @Param challenge: ChallengeCardData;
@@ -56,7 +56,7 @@ export struct TodayView {
           onOpen: () => this.onOpenTarget()
         })
 
-        CsSectionHeader({ title: '竞赛挑战 · 二选一', meta: 'RATING: 900', accent: CsColor.TERTIARY })
+        CsSectionHeader({ title: '竞赛挑战 · 二选一', meta: this.challenge.ratingText, accent: CsColor.TERTIARY })
 
         CsChallengeCard({
           problem: this.challenge.problem,
@@ -66,7 +66,6 @@ export struct TodayView {
         })
 
         CsDailyReport({
-          focusMinutes: this.snapshot.focusMinutes,
           solvedCount: this.snapshot.targetProgress,
           target: this.snapshot.dailyTarget
         })

@@ -1,5 +1,6 @@
 import { CsColor } from '../constants/DesignTokens';
-import { CheckInStatus, ContestStatus, PlatformCode, SolveStatus, UpsolveState } from '../model/Enums';
+import { CheckInStatus, ContestStatus, PlatformCode, SolveStatus } from '../model/Enums';
+import { DateUtil } from '../utils/DateUtil';
 import {
   BadgeItem,
   ChallengeCardData,
@@ -18,22 +19,22 @@ import {
 } from '../model/Entities';
 
 /**
- * 自洽示例数据集 v1（docs/06-附录/01 第 6 节）
- * 连续 28 · 生涯最长 64 · 累计 152 · 总 AC 384 · 占比 22.1/29.2/33.9/11.7/3.1
- * 所有页面共用同一份数据，保证跨页口径一致。
+ * 静态目录数据（题目、题单标题、设置文案）。
+ * 用户相关数据（连续天数、总 AC、热力图、徽章、榜单）一律从本地库计算，
+ * 无数据即空/0，不再构造示例数字（docs/06-附录/01 D-07~D-12）。
  */
 export class SeedData {
   static today(): TodaySnapshot {
     const snap: TodaySnapshot = {
       status: CheckInStatus.PENDING,
-      targetProgress: 1,
+      targetProgress: 0,
       dailyTarget: 2,
-      streakDays: 28,
-      longestStreak: 64,
-      todayAcCount: 3,
-      focusMinutes: 42,
-      beatPercent: 89.4,
-      weekNumber: 42
+      streakDays: 0,
+      longestStreak: 0,
+      todayAcCount: 0,
+      focusMinutes: 0,
+      beatPercent: 0,
+      weekNumber: DateUtil.isoWeek(new Date())
     };
     return snap;
   }
@@ -69,47 +70,43 @@ export class SeedData {
       nativeLabel: 'Easy',
       tags: ['math', 'games', 'Div.3 A题'],
       status: SolveStatus.TODO,
-      sourceText: 'RATING: 900',
+      sourceText: 'RATING: 800',
       url: 'https://codeforces.com/problemset/problem/1899/A'
     };
-    const data: ChallengeCardData = { problem: problem, ratingText: 'RATING: 900' };
+    const data: ChallengeCardData = { problem: problem, ratingText: 'RATING: 800' };
     return data;
   }
 
-  /** 本周打卡矩阵：周一至周五已完成，周六为今日，周日未到 */
+  /** 本周打卡矩阵（真实状态由 Index 按打卡记录覆盖） */
   static weekCells(): WeekCell[] {
     const labels: string[] = ['一', '二', '三', '四', '五', '六', '日'];
+    const weekdayFromMonday: number = (new Date().getDay() + 6) % 7;
     const cells: WeekCell[] = [];
     for (let i = 0; i < labels.length; i++) {
-      let state: 'done' | 'today' | 'future' = 'done';
-      if (i === 5) {
-        state = 'today';
-      } else if (i === 6) {
-        state = 'future';
-      }
+      const state: 'done' | 'today' | 'future' = i === weekdayFromMonday ? 'today' : 'future';
       const cell: WeekCell = { label: labels[i], state: state };
       cells.push(cell);
     }
     return cells;
   }
 
-  /** P-02 官方精选题单（3 张） */
+  /** 官方精选题单目录（完成度从 0 起算，订阅进度尚未接入） */
   static collections(): CollectionCard[] {
     const list: CollectionCard[] = [
       {
         id: 'c1', tag: '高频面试', title: '代码随想录 · 核心 60 题',
         desc: '经典数组、动态规划及单调栈体系化通关路线。',
-        done: 42, total: 60, percent: 70
+        done: 0, total: 60, percent: 0
       },
       {
         id: 'c2', tag: '竞赛排位', title: 'CF 1200-1400 突破营',
         desc: '攻克 Div.3 C/D 与 Div.2 B/C 贪心与二分分水岭题目。',
-        done: 15, total: 45, percent: 33
+        done: 0, total: 45, percent: 0
       },
       {
         id: 'c3', tag: '经典必刷', title: '剑指 Offer 经典必刷',
         desc: '国内大厂考察极高频的代码与数据结构模版题。',
-        done: 67, total: 75, percent: 89
+        done: 0, total: 75, percent: 0
       }
     ];
     return list;
@@ -141,194 +138,97 @@ export class SeedData {
     return list;
   }
 
-  /** P-03 赛事（6 张，含 ICPC / CCPC） */
+  /** P-03 赛事：仅展示真实数据源（CPC Finder 等），无数据为空 */
   static contests(): ContestItem[] {
-    const list: ContestItem[] = [
-      {
-        id: 'ct-icpc', platform: PlatformCode.LC, platformLabel: 'ICPC 区域赛',
-        name: '2024 ICPC 亚洲区域赛网络预选赛（第一场）',
-        timeText: '周日 09:00 - 14:00', durationText: '300分钟',
-        status: ContestStatus.REGISTERING, statusText: '报名中',
-        accent: CsColor.PRIMARY_CONTAINER, footerText: '队伍状态：主力队已绑定 (3/3人)',
-        actionText: '报名详情', secondaryText: '一键提醒队友', pulsing: true,
-        url: 'https://icpc.global/', isCollegiate: true
-      },
-      {
-        id: 'ct-ccpc', platform: PlatformCode.AC, platformLabel: 'CCPC 分站赛',
-        name: '第十届 CCPC 中国大学生程序设计竞赛分站赛',
-        timeText: '06-11 09:00', durationText: '300分钟',
-        status: ContestStatus.PREPARING, statusText: '备赛中',
-        accent: CsColor.SECONDARY_CONTAINER, footerText: '规则：ICPC 赛制 • 封榜 60 分钟',
-        actionText: '竞赛官网', secondaryText: '同步日程', pulsing: false,
-        url: 'https://ccpc.io/', isCollegiate: true
-      },
-      {
-        id: 'ct-lc', platform: PlatformCode.LC, platformLabel: 'LeetCode',
-        name: 'LeetCode 第 398 场周赛',
-        timeText: '周日 10:30 - 12:00', durationText: '90分钟',
-        status: ContestStatus.UPCOMING, statusText: '未开始',
-        accent: '', footerText: '已有 14,290 名选手报名',
-        actionText: '报名链接', secondaryText: '', pulsing: false,
-        url: 'https://leetcode.cn/contest/', isCollegiate: false
-      },
-      {
-        id: 'ct-cf', platform: PlatformCode.CF, platformLabel: 'Codeforces',
-        name: 'Codeforces Round 951 (Div. 2)',
-        timeText: '下周二 22:35', durationText: '120分钟',
-        status: ContestStatus.UPCOMING, statusText: '未开始',
-        accent: '', footerText: '距离注册通道关闭还有 2 天',
-        actionText: '前往CF', secondaryText: '', pulsing: false,
-        url: 'https://codeforces.com/contests', isCollegiate: false
-      },
-      {
-        id: 'ct-ac', platform: PlatformCode.AC, platformLabel: 'AtCoder',
-        name: 'AtCoder Beginner Contest 356',
-        timeText: '今日 20:00', durationText: '100分钟',
-        status: ContestStatus.UPCOMING, statusText: '未开始',
-        accent: '', footerText: 'Rated for ≤ 1999',
-        actionText: '报名竞赛', secondaryText: '', pulsing: false,
-        url: 'https://atcoder.jp/contests/', isCollegiate: false
-      },
-      {
-        id: 'ct-lg', platform: PlatformCode.LG, platformLabel: '洛谷',
-        name: '「LGR-188」洛谷 6 月月赛 I & Code+',
-        timeText: '周日 14:00', durationText: '240分钟',
-        status: ContestStatus.UPCOMING, statusText: '未开始',
-        accent: '', footerText: '难度跨度 普及+/提高至省选',
-        actionText: '进入比赛', secondaryText: '', pulsing: false,
-        url: 'https://www.luogu.com.cn/contest/list', isCollegiate: false
-      }
-    ];
+    const list: ContestItem[] = [];
     return list;
   }
 
-  /** P-03 周条（06-05 ~ 06-11） */
+  /** P-03 周条（真实状态由 Index 按打卡记录覆盖） */
   static weekStrip(): WeekStripDay[] {
-    const labels: string[] = ['四', '五', '六', '日', '一', '二', '三'];
-    const dates: string[] = ['05', '06', '07', '08', '09', '10', '11'];
+    const today: Date = new Date();
+    const weekdayFromMonday: number = (today.getDay() + 6) % 7;
+    const monday: Date = new Date(today.getFullYear(), today.getMonth(), today.getDate() - weekdayFromMonday);
     const days: WeekStripDay[] = [];
-    for (let i = 0; i < labels.length; i++) {
-      const active: boolean = i === 2 || i === 3 || i === 5;
-      let dot: string = '';
-      if (i === 2) {
-        dot = CsColor.PRIMARY_CONTAINER;
-      } else if (i === 3) {
-        dot = CsColor.TERTIARY;
-      } else if (i === 5) {
-        dot = CsColor.SECONDARY;
-      }
-      const day: WeekStripDay = { label: labels[i], date: dates[i], active: active, dotColor: dot };
-      days.push(day);
+    for (let i = 0; i < 7; i++) {
+      const day: Date = new Date(monday.getFullYear(), monday.getMonth(), monday.getDate() + i);
+      const item: WeekStripDay = {
+        label: DateUtil.weekdayLabel(day),
+        date: DateUtil.pad2(day.getDate()),
+        active: false,
+        dotColor: ''
+      };
+      days.push(item);
     }
     return days;
   }
 
   static countdown(): CountdownState {
-    const c: CountdownState = { days: '01', hours: '04', minutes: '20', seconds: '10' };
+    const c: CountdownState = { days: '00', hours: '00', minutes: '00', seconds: '00' };
     return c;
   }
 
-  /** 赛后补题任务：3 AC + 1 待补 */
+  /** 赛后补题任务：无真实赛果来源时为空 */
   static upsolve(): UpsolveTask {
     const task: UpsolveTask = {
-      contestName: 'Codeforces Round 949 (Div. 3)',
-      resultText: '比赛已结束 • 当前赛后战果：3 AC / 1 待补题',
-      percent: 75,
-      problems: [
-        {
-          letter: 'A', title: 'Turtle and Piggy Are Playing a Game',
-          difficultyText: '★1 签到题 • 贪心/位运算',
-          state: UpsolveState.AC_IN_CONTEST, stateText: 'AC (赛中通过)', focused: false
-        },
-        {
-          letter: 'B', title: 'Turtle and an Infinite Sequence',
-          difficultyText: '★2 构造/位运算分析',
-          state: UpsolveState.AC_IN_CONTEST, stateText: 'AC (赛中通过)', focused: false
-        },
-        {
-          letter: 'C', title: 'Turtle and an Incomplete Sequence',
-          difficultyText: '★2.5 二叉树/LCA/构造',
-          state: UpsolveState.AC_AFTER, stateText: 'AC (赛后补题已录入)', focused: false
-        },
-        {
-          letter: 'D', title: 'Turtle and a MEX Problem',
-          difficultyText: '★3 难度 • 图论/MEX/有向图DP',
-          state: UpsolveState.PENDING, stateText: '待补题', focused: true
-        }
-      ]
+      contestName: '',
+      resultText: '',
+      percent: 0,
+      problems: []
     };
     return task;
   }
 
-  /** 热力图：16 周 × 7 天，取值 0–4（确定性生成，保证每次渲染一致） */
+  /** 热力图：真实数据由 DatabaseHelper 聚合；空数据全 0 */
   static heatmap(): number[] {
     const cells: number[] = [];
     for (let i = 0; i < 112; i++) {
-      const base: number = (i * 37 + 11) % 7;
-      let level: number = 0;
-      if (base === 0) {
-        level = 0;
-      } else if (base <= 2) {
-        level = 1;
-      } else if (base <= 4) {
-        level = 2;
-      } else if (base === 5) {
-        level = 3;
-      } else {
-        level = 4;
-      }
-      // 近 4 周整体更活跃（贴合原型"近期持续打卡"）
-      if (i > 84 && level < 2) {
-        level = 2;
-      }
-      cells.push(level);
+      cells.push(0);
     }
     return cells;
   }
 
-  /** 难度分布：85 / 112 / 130 / 45 / 12 = 384 */
+  /** 难度分布：真实数据由 StatsService 计算；空数据全 0 */
   static difficultyRows(): DifficultyRow[] {
     const rows: DifficultyRow[] = [
-      { star: 1, name: '★1 入门', topic: '语法与模拟', count: 85, percent: 22.1 },
-      { star: 2, name: '★2 基础', topic: '基础数据结构', count: 112, percent: 29.2 },
-      { star: 3, name: '★3 进阶', topic: '动态规划与图论', count: 130, percent: 33.9 },
-      { star: 4, name: '★4 困难', topic: '高级算法与数论', count: 45, percent: 11.7 },
-      { star: 5, name: '★5 挑战', topic: '竞赛压轴与黑题', count: 12, percent: 3.1 }
+      { star: 1, name: '★1 入门', topic: '语法与模拟', count: 0, percent: 0 },
+      { star: 2, name: '★2 基础', topic: '基础数据结构', count: 0, percent: 0 },
+      { star: 3, name: '★3 进阶', topic: '动态规划与图论', count: 0, percent: 0 },
+      { star: 4, name: '★4 困难', topic: '高级算法与数论', count: 0, percent: 0 },
+      { star: 5, name: '★5 挑战', topic: '竞赛压轴与黑题', count: 0, percent: 0 }
     ];
     return rows;
   }
 
+  /** 徽章：由 StatsService 按真实数据计算；此处为初始锁定态 */
   static badges(): BadgeItem[] {
     const list: BadgeItem[] = [
-      { id: 'b1', name: '打卡30天', state: 'in_progress', stateText: '进行中 28/30', glyph: '◷' },
-      { id: 'b2', name: '周赛全A', state: 'unlocked', stateText: '已解锁', glyph: '★' },
-      { id: 'b3', name: '跨平台全能', state: 'unlocked', stateText: '已解锁', glyph: '◈' }
+      { id: 'b1', name: '打卡30天', state: 'locked', stateText: '0/30', glyph: '◷' },
+      { id: 'b2', name: '百题斩', state: 'locked', stateText: '0/100', glyph: '★' },
+      { id: 'b3', name: '跨平台全能', state: 'locked', stateText: '0/3 平台', glyph: '◈' }
     ];
     return list;
   }
 
+  /** 好友榜：暂无好友数据源，保持为空 */
   static leaderboard(): LeaderRow[] {
-    const rows: LeaderRow[] = [
-      { rank: 1, name: 'ACM_Kimi', subtitle: 'Codeforces Grandmaster', days: 45, isYou: false },
-      { rank: 2, name: 'EchoByte_Dev', subtitle: 'LeetCode 2380+', days: 34, isYou: false },
-      { rank: 3, name: 'AlgoMaster_Lin', subtitle: '保持冲刺，距前一名仅差 6 天', days: 28, isYou: true }
-    ];
+    const rows: LeaderRow[] = [];
     return rows;
   }
 
   static settings(): SettingRow[] {
     const rows: SettingRow[] = [
       {
-        id: 's1', title: 'OJ 元数据同步管理', subtitle: '上次同步: 今天 19:42 · 自动轮询已开启',
+        id: 's1', title: 'OJ 元数据同步管理', subtitle: '尚未同步',
         glyph: '⟳', kind: 'link', enabled: true
       },
       {
         id: 's2', title: '每日打卡催促通知', subtitle: '每晚 21:30 强提醒 · 避免断签',
-        glyph: '◷', kind: 'toggle', enabled: true
+        glyph: '◷', kind: 'toggle', enabled: false
       },
       {
-        id: 's3', title: '刷题日志数据导出', subtitle: '支持导出 JSON / Markdown 题解索引',
-        glyph: '↓', kind: 'link', enabled: true
+        id: 's3', title: '刷题日志数据导出', subtitle: '暂未开放（v1.1）',
+        glyph: '↓', kind: 'link', enabled: false
       }
     ];
     return rows;

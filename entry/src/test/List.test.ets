@@ -11,6 +11,7 @@ import reminderPlanTest from './ReminderPlan.test';
 import luoguMapperTest from './LuoguMapper.test';
 import retryQueueTest from './RetryQueue.test';
 import leetCodeMapperTest from './LeetCodeMapper.test';
+import statsServiceTest from './StatsService.test';
 
 export default function testsuite() {
   localUnitTest();
@@ -26,4 +27,5 @@ export default function testsuite() {
   luoguMapperTest();
   retryQueueTest();
   leetCodeMapperTest();
+  statsServiceTest();
 }

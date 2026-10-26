@@ -156,6 +156,16 @@ export interface DailyAcCount {
   count: number;
 }
 
+/** 提交聚合（真实统计口径） */
+export interface AcStats {
+  /** 去重 AC 题数 */
+  solved: number;
+  /** 有 AC 的平台数 */
+  platforms: number;
+  /** 五个难度档的题数，索引 0 对应 ★1 */
+  difficulty: number[];
+}
+
 /** 页面级统计快照 */
 export interface TodaySnapshot {
   status: CheckInStatus;

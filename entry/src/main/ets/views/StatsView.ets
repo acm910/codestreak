@@ -10,18 +10,19 @@ import { CsBadgeShelf, CsDifficultyBars, CsHeatmap, CsLeaderboard } from '../com
 export struct StatsView {
   @Param snapshot: TodaySnapshot = {
     status: CheckInStatus.PENDING,
-    targetProgress: 1,
+    targetProgress: 0,
     dailyTarget: 2,
-    streakDays: 28,
-    longestStreak: 64,
-    todayAcCount: 3,
-    focusMinutes: 42,
-    beatPercent: 89.4,
-    weekNumber: 42
+    streakDays: 0,
+    longestStreak: 0,
+    todayAcCount: 0,
+    focusMinutes: 0,
+    beatPercent: 0,
+    weekNumber: 1
   };
-  @Param totalAc: number = 384;
-  @Param totalDays: number = 152;
-  @Param makeupCredits: number = 2;
+  @Param totalAc: number = 0;
+  @Param totalDays: number = 0;
+  @Param makeupCredits: number = 0;
+  @Param platforms: string[] = ['未绑定'];
   @Param cells: number[] = [];
   @Param difficultyRows: DifficultyRow[] = [];
   @Param badges: BadgeItem[] = [];
@@ -30,6 +31,8 @@ export struct StatsView {
   @Event onBindPlatform: () => void = () => {
   };
   @Event onReminderToggle: (enabled: boolean) => void = () => {
+  };
+  @Event onSync: () => void = () => {
   };
 
   @Local leaderTab: number = 0;
@@ -101,8 +104,9 @@ export struct StatsView {
       Column({ space: CsSpace.LG }) {
         CsProfileCard({
           totalAc: this.totalAc,
+          platforms: this.platforms,
           onSync: () => {
-            this.hint = '已触发同步，正在拉取四个平台记录';
+            this.onSync();
           }
         })
 
@@ -115,8 +119,8 @@ export struct StatsView {
         })
 
         Row({ space: CsSpace.SM }) {
-          this.miniMetric('历史最长记录', `${this.snapshot.longestStreak}`, '天', '2024.Q1 极客远征', '★')
-          this.miniMetric('累计打卡天数', `${this.totalDays}`, '天', `击败了 ${this.snapshot.beatPercent}% 选手`, '◷')
+          this.miniMetric('历史最长记录', `${this.snapshot.longestStreak}`, '天', '按本地打卡记录统计', '★')
+          this.miniMetric('累计打卡天数', `${this.totalDays}`, '天', '仅统计达标日', '◷')
         }
         .width('100%')
 
@@ -135,7 +139,8 @@ export struct StatsView {
               .fontColor(CsColor.TEXT_PRIMARY)
             Row({ space: 4 }) {
               Text('补签卡余额：').fontSize(CsFont.BODY_SM).fontColor(CsColor.TEXT_SECONDARY)
-              Text(`${this.makeupCredits} 张`).fontSize(CsFont.BODY_SM)
+              Text(this.makeupCredits > 0 ? `${this.makeupCredits} 张` : '暂未开放')
+                .fontSize(CsFont.BODY_SM)
                 .fontWeight(FontWeight.Bold).fontColor(CsColor.PRIMARY)
             }
           }
