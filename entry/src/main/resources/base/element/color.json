@@ -1,0 +1,29 @@
+{
+  "color": [
+    { "name": "cs_color_surface", "value": "#10141A" },
+    { "name": "cs_color_surface_lowest", "value": "#0A0E14" },
+    { "name": "cs_color_surface_low", "value": "#181C22" },
+    { "name": "cs_color_surface_container", "value": "#1C2026" },
+    { "name": "cs_color_surface_high", "value": "#262A31" },
+    { "name": "cs_color_surface_highest", "value": "#31353C" },
+    { "name": "cs_color_surface_bright", "value": "#353940" },
+    { "name": "cs_color_text_primary", "value": "#DFE2EB" },
+    { "name": "cs_color_text_secondary", "value": "#D9C3AD" },
+    { "name": "cs_color_text_tertiary", "value": "#A18D7A" },
+    { "name": "cs_color_text_ghost", "value": "#544434" },
+    { "name": "cs_color_primary", "value": "#FFC78B" },
+    { "name": "cs_color_primary_container", "value": "#FFA116" },
+    { "name": "cs_color_primary_on", "value": "#482900" },
+    { "name": "cs_color_primary_fixed_dim", "value": "#FFB867" },
+    { "name": "cs_color_secondary", "value": "#4EDEA3" },
+    { "name": "cs_color_secondary_container", "value": "#00A572" },
+    { "name": "cs_color_secondary_on", "value": "#003824" },
+    { "name": "cs_color_tertiary", "value": "#BFD2FF" },
+    { "name": "cs_color_tertiary_container", "value": "#94B6FF" },
+    { "name": "cs_color_tertiary_on", "value": "#002E6A" },
+    { "name": "cs_color_error", "value": "#FFB4AB" },
+    { "name": "cs_color_error_on", "value": "#690005" },
+    { "name": "cs_color_border_subtle", "value": "#544434" },
+    { "name": "start_window_background", "value": "#10141A" }
+  ]
+}

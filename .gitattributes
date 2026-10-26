@@ -1,0 +1,30 @@
+# 统一换行与文本处理（协作方使用 Windows / macOS 混合环境）
+* text=auto eol=lf
+
+# 源码与文档按文本处理
+*.ets      text eol=lf
+*.ts       text eol=lf
+*.json     text eol=lf
+*.json5    text eol=lf
+*.md       text eol=lf
+*.yml      text eol=lf
+*.yaml     text eol=lf
+*.sh       text eol=lf
+.gitignore text eol=lf
+.gitattributes text eol=lf
+
+# 二进制资源
+*.png      binary
+*.jpg      binary
+*.jpeg     binary
+*.webp     binary
+*.gif      binary
+*.ttf      binary
+*.otf      binary
+*.hap      binary
+*.app      binary
+*.p12      binary
+*.cer      binary
+
+# 生成物不参与 diff 统计
+docs/产品原型/**/*.png binary
