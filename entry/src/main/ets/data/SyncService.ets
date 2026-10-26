@@ -4,6 +4,7 @@ import { DatabaseHelper } from './db/DatabaseHelper';
 import { AtCoderAdapter } from './remote/AtCoderAdapter';
 import { AtCoderMapper } from './remote/AtCoderMapper';
 import { CodeforcesAdapter } from './remote/CodeforcesAdapter';
+import { LuoguAdapter } from './remote/LuoguAdapter';
 
 /** 一次同步的结果，供 UI 提示与埋点 */
 export interface SyncOutcome {
@@ -22,6 +23,7 @@ export class SyncService {
   static readonly CF_HANDLE_KEY: string = 'cf_handle';
   static readonly AC_HANDLE_KEY: string = 'ac_handle';
   static readonly AC_CURSOR_KEY: string = 'ac_cursor';
+  static readonly LG_UID_KEY: string = 'luogu_uid';
   static readonly LAST_SYNC_KEY: string = 'last_sync_at';
 
   private static async finish(status: string, fetched: number, inserted: number,
@@ -80,12 +82,49 @@ export class SyncService {
     return outcome;
   }
 
+  static async syncLuogu(uid: string): Promise<SyncOutcome> {
+    const startedAt: number = Date.now();
+    const collected: SyncSubmission[] = [];
+    let failureMessage: string = '';
+    for (let page = 1; page <= 2; page++) {
+      const result: MapperResult = await LuoguAdapter.fetchRecords(uid, page);
+      if (!result.ok) {
+        failureMessage = result.message;
+        break;
+      }
+      for (const item of result.submissions) {
+        collected.push(item);
+      }
+      if (result.submissions.length === 0) {
+        break;
+      }
+    }
+    if (failureMessage.length > 0 && collected.length === 0) {
+      await DatabaseHelper.logSyncJob('LG', 'failed', 0, 0, failureMessage, startedAt);
+      const failed: SyncOutcome = { ok: false, message: failureMessage, fetched: 0, inserted: 0, dailyAc: 0 };
+      return failed;
+    }
+    const inserted: number = await DatabaseHelper.upsertSubmissions(collected);
+    const dailyAc: number = await DatabaseHelper.countDailyAc(DateUtil.todayKey());
+    await DatabaseHelper.logSyncJob('LG', 'success', collected.length, inserted, failureMessage, startedAt);
+    const outcome: SyncOutcome = await SyncService.finish('success', collected.length, inserted, dailyAc, startedAt);
+    outcome.message = `洛谷：拉取 ${collected.length} 条，新增 ${inserted} 条`;
+    return outcome;
+  }
+
   static async loadHandle(): Promise<string> {
     return DatabaseHelper.loadSetting(SyncService.CF_HANDLE_KEY);
   }
-
   static async saveHandle(handle: string): Promise<void> {
     await DatabaseHelper.saveSetting(SyncService.CF_HANDLE_KEY, handle.trim());
+  }
+
+  static async loadLuoguUid(): Promise<string> {
+    return DatabaseHelper.loadSetting(SyncService.LG_UID_KEY);
+  }
+
+  static async saveLuoguUid(uid: string): Promise<void> {
+    await DatabaseHelper.saveSetting(SyncService.LG_UID_KEY, uid.trim());
   }
 
   static async loadAtCoderHandle(): Promise<string> {

@@ -8,6 +8,7 @@ import atCoderMapperTest from './AtCoderMapper.test';
 import cpcfinderMapperTest from './CpcfinderMapper.test';
 import heatmapTest from './Heatmap.test';
 import reminderPlanTest from './ReminderPlan.test';
+import luoguMapperTest from './LuoguMapper.test';
 
 export default function testsuite() {
   localUnitTest();
@@ -20,4 +21,5 @@ export default function testsuite() {
   cpcfinderMapperTest();
   heatmapTest();
   reminderPlanTest();
+  luoguMapperTest();
 }
