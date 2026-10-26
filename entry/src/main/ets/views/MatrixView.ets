@@ -24,8 +24,6 @@ export struct MatrixView {
   @Local acEnabled: boolean = true;
   @Local sortLabel: string = '归一难度';
 
-  private difficultyLabels: string[] = ['全部', '★1 入门', '★2 基础', '★3 进阶', '★4 困难', '★5 挑战'];
-
   private platformEnabled(code: string): boolean {
     if (code === PlatformCode.LC) {
       return this.lcEnabled;
@@ -37,18 +35,6 @@ export struct MatrixView {
       return this.lgEnabled;
     }
     return this.acEnabled;
-  }
-
-  private togglePlatform(code: string): void {
-    if (code === PlatformCode.LC) {
-      this.lcEnabled = !this.lcEnabled;
-    } else if (code === PlatformCode.CF) {
-      this.cfEnabled = !this.cfEnabled;
-    } else if (code === PlatformCode.LG) {
-      this.lgEnabled = !this.lgEnabled;
-    } else {
-      this.acEnabled = !this.acEnabled;
-    }
   }
 
   private enabledPlatformCount(): number {
@@ -197,19 +183,66 @@ export struct MatrixView {
   difficultyRow() {
     Scroll() {
       Row({ space: 6 }) {
-        ForEach(this.difficultyLabels, (label: string, index: number) => {
-          Text(label)
-            .fontSize(CsFont.LABEL_SM)
-            .fontColor(this.difficultyFilter === index - 1 || (index === 0 && this.difficultyFilter < 0)
-              ? CsColor.PRIMARY_ON : CsColor.TEXT_SECONDARY)
-            .padding({ left: 10, right: 10, top: 5, bottom: 5 })
-            .borderRadius(CsRadius.FULL)
-            .backgroundColor(index === 0 && this.difficultyFilter < 0
-              ? CsColor.PRIMARY_CONTAINER : CsColor.SURFACE_HIGH)
-            .onClick(() => {
-              this.difficultyFilter = index - 1;
-            })
-        }, (label: string) => label)
+        Text('全部')
+          .fontSize(CsFont.LABEL_SM)
+          .fontWeight(this.difficultyFilter < 0 ? FontWeight.Bold : FontWeight.Normal)
+          .fontColor(this.difficultyFilter < 0 ? CsColor.PRIMARY_ON : CsColor.TEXT_SECONDARY)
+          .padding({ left: 10, right: 10, top: 5, bottom: 5 })
+          .borderRadius(CsRadius.FULL)
+          .backgroundColor(this.difficultyFilter < 0 ? CsColor.PRIMARY_CONTAINER : CsColor.SURFACE_HIGH)
+          .onClick(() => {
+            this.difficultyFilter = -1;
+          })
+        Text('★1 入门')
+          .fontSize(CsFont.LABEL_SM)
+          .fontWeight(this.difficultyFilter === 0 ? FontWeight.Bold : FontWeight.Normal)
+          .fontColor(this.difficultyFilter === 0 ? CsColor.PRIMARY_ON : CsColor.TEXT_SECONDARY)
+          .padding({ left: 10, right: 10, top: 5, bottom: 5 })
+          .borderRadius(CsRadius.FULL)
+          .backgroundColor(this.difficultyFilter === 0 ? CsColor.PRIMARY_CONTAINER : CsColor.SURFACE_HIGH)
+          .onClick(() => {
+            this.difficultyFilter = 0;
+          })
+        Text('★2 基础')
+          .fontSize(CsFont.LABEL_SM)
+          .fontWeight(this.difficultyFilter === 1 ? FontWeight.Bold : FontWeight.Normal)
+          .fontColor(this.difficultyFilter === 1 ? CsColor.PRIMARY_ON : CsColor.TEXT_SECONDARY)
+          .padding({ left: 10, right: 10, top: 5, bottom: 5 })
+          .borderRadius(CsRadius.FULL)
+          .backgroundColor(this.difficultyFilter === 1 ? CsColor.PRIMARY_CONTAINER : CsColor.SURFACE_HIGH)
+          .onClick(() => {
+            this.difficultyFilter = 1;
+          })
+        Text('★3 进阶')
+          .fontSize(CsFont.LABEL_SM)
+          .fontWeight(this.difficultyFilter === 2 ? FontWeight.Bold : FontWeight.Normal)
+          .fontColor(this.difficultyFilter === 2 ? CsColor.PRIMARY_ON : CsColor.TEXT_SECONDARY)
+          .padding({ left: 10, right: 10, top: 5, bottom: 5 })
+          .borderRadius(CsRadius.FULL)
+          .backgroundColor(this.difficultyFilter === 2 ? CsColor.PRIMARY_CONTAINER : CsColor.SURFACE_HIGH)
+          .onClick(() => {
+            this.difficultyFilter = 2;
+          })
+        Text('★4 困难')
+          .fontSize(CsFont.LABEL_SM)
+          .fontWeight(this.difficultyFilter === 3 ? FontWeight.Bold : FontWeight.Normal)
+          .fontColor(this.difficultyFilter === 3 ? CsColor.PRIMARY_ON : CsColor.TEXT_SECONDARY)
+          .padding({ left: 10, right: 10, top: 5, bottom: 5 })
+          .borderRadius(CsRadius.FULL)
+          .backgroundColor(this.difficultyFilter === 3 ? CsColor.PRIMARY_CONTAINER : CsColor.SURFACE_HIGH)
+          .onClick(() => {
+            this.difficultyFilter = 3;
+          })
+        Text('★5 挑战')
+          .fontSize(CsFont.LABEL_SM)
+          .fontWeight(this.difficultyFilter === 4 ? FontWeight.Bold : FontWeight.Normal)
+          .fontColor(this.difficultyFilter === 4 ? CsColor.PRIMARY_ON : CsColor.TEXT_SECONDARY)
+          .padding({ left: 10, right: 10, top: 5, bottom: 5 })
+          .borderRadius(CsRadius.FULL)
+          .backgroundColor(this.difficultyFilter === 4 ? CsColor.PRIMARY_CONTAINER : CsColor.SURFACE_HIGH)
+          .onClick(() => {
+            this.difficultyFilter = 4;
+          })
       }
     }
     .scrollable(ScrollDirection.Horizontal)
@@ -223,33 +256,75 @@ export struct MatrixView {
       Text(`平台 ${this.enabledPlatformCount()}/4`)
         .fontSize(CsFont.LABEL_SM)
         .fontColor(CsColor.TEXT_TERTIARY)
-      this.platformPill(PlatformCode.LC, 'LC', this.lcEnabled)
-      this.platformPill(PlatformCode.CF, 'CF', this.cfEnabled)
-      this.platformPill(PlatformCode.LG, '洛谷', this.lgEnabled)
-      this.platformPill(PlatformCode.AC, 'AtCoder', this.acEnabled)
+      Row({ space: 4 }) {
+        Text(this.lcEnabled ? Glyph.CHECK : Glyph.HOLLOW_DOT)
+          .fontSize(10)
+          .fontColor(this.lcEnabled ? platformOnColor(PlatformCode.LC) : CsColor.TEXT_GHOST)
+        Text('LC')
+          .fontSize(CsFont.LABEL_SM)
+          .fontWeight(this.lcEnabled ? FontWeight.Bold : FontWeight.Normal)
+          .fontColor(this.lcEnabled ? platformOnColor(PlatformCode.LC) : CsColor.TEXT_TERTIARY)
+      }
+      .padding({ left: 9, right: 9, top: 6, bottom: 6 })
+      .borderRadius(CsRadius.FULL)
+      .backgroundColor(this.lcEnabled ? platformColor(PlatformCode.LC) : CsColor.SURFACE_HIGH)
+      .border({ width: 1, color: this.lcEnabled ? platformColor(PlatformCode.LC) : withAlpha(CsColor.TEXT_GHOST, 0.35) })
+      .onClick(() => {
+        this.lcEnabled = !this.lcEnabled;
+      })
+
+      Row({ space: 4 }) {
+        Text(this.cfEnabled ? Glyph.CHECK : Glyph.HOLLOW_DOT)
+          .fontSize(10)
+          .fontColor(this.cfEnabled ? platformOnColor(PlatformCode.CF) : CsColor.TEXT_GHOST)
+        Text('CF')
+          .fontSize(CsFont.LABEL_SM)
+          .fontWeight(this.cfEnabled ? FontWeight.Bold : FontWeight.Normal)
+          .fontColor(this.cfEnabled ? platformOnColor(PlatformCode.CF) : CsColor.TEXT_TERTIARY)
+      }
+      .padding({ left: 9, right: 9, top: 6, bottom: 6 })
+      .borderRadius(CsRadius.FULL)
+      .backgroundColor(this.cfEnabled ? platformColor(PlatformCode.CF) : CsColor.SURFACE_HIGH)
+      .border({ width: 1, color: this.cfEnabled ? platformColor(PlatformCode.CF) : withAlpha(CsColor.TEXT_GHOST, 0.35) })
+      .onClick(() => {
+        this.cfEnabled = !this.cfEnabled;
+      })
+
+      Row({ space: 4 }) {
+        Text(this.lgEnabled ? Glyph.CHECK : Glyph.HOLLOW_DOT)
+          .fontSize(10)
+          .fontColor(this.lgEnabled ? platformOnColor(PlatformCode.LG) : CsColor.TEXT_GHOST)
+        Text('洛谷')
+          .fontSize(CsFont.LABEL_SM)
+          .fontWeight(this.lgEnabled ? FontWeight.Bold : FontWeight.Normal)
+          .fontColor(this.lgEnabled ? platformOnColor(PlatformCode.LG) : CsColor.TEXT_TERTIARY)
+      }
+      .padding({ left: 9, right: 9, top: 6, bottom: 6 })
+      .borderRadius(CsRadius.FULL)
+      .backgroundColor(this.lgEnabled ? platformColor(PlatformCode.LG) : CsColor.SURFACE_HIGH)
+      .border({ width: 1, color: this.lgEnabled ? platformColor(PlatformCode.LG) : withAlpha(CsColor.TEXT_GHOST, 0.35) })
+      .onClick(() => {
+        this.lgEnabled = !this.lgEnabled;
+      })
+
+      Row({ space: 4 }) {
+        Text(this.acEnabled ? Glyph.CHECK : Glyph.HOLLOW_DOT)
+          .fontSize(10)
+          .fontColor(this.acEnabled ? platformOnColor(PlatformCode.AC) : CsColor.TEXT_GHOST)
+        Text('AtCoder')
+          .fontSize(CsFont.LABEL_SM)
+          .fontWeight(this.acEnabled ? FontWeight.Bold : FontWeight.Normal)
+          .fontColor(this.acEnabled ? platformOnColor(PlatformCode.AC) : CsColor.TEXT_TERTIARY)
+      }
+      .padding({ left: 9, right: 9, top: 6, bottom: 6 })
+      .borderRadius(CsRadius.FULL)
+      .backgroundColor(this.acEnabled ? platformColor(PlatformCode.AC) : CsColor.SURFACE_HIGH)
+      .border({ width: 1, color: this.acEnabled ? platformColor(PlatformCode.AC) : withAlpha(CsColor.TEXT_GHOST, 0.35) })
+      .onClick(() => {
+        this.acEnabled = !this.acEnabled;
+      })
     }
     .width('100%')
-  }
-
-  @Builder
-  platformPill(code: string, label: string, enabled: boolean) {
-    Row({ space: 4 }) {
-      Text(enabled ? Glyph.CHECK : Glyph.HOLLOW_DOT)
-        .fontSize(10)
-        .fontColor(enabled ? platformOnColor(code) : CsColor.TEXT_GHOST)
-      Text(label)
-        .fontSize(CsFont.LABEL_SM)
-        .fontWeight(enabled ? FontWeight.Bold : FontWeight.Normal)
-        .fontColor(enabled ? platformOnColor(code) : CsColor.TEXT_TERTIARY)
-    }
-    .padding({ left: 9, right: 9, top: 6, bottom: 6 })
-    .borderRadius(CsRadius.FULL)
-    .backgroundColor(enabled ? platformColor(code) : CsColor.SURFACE_HIGH)
-    .border({
-      width: 1,
-      color: enabled ? platformColor(code) : withAlpha(CsColor.TEXT_GHOST, 0.35)
-    })
-    .onClick(() => this.togglePlatform(code))
   }
 
   @Builder
