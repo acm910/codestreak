@@ -1,0 +1,141 @@
+{
+  "$schema": "https://design-tokens.github.io/community-group/format/",
+  "$description": "CodeStreak 设计令牌 · 机器可读导出。权威说明见 docs/02-设计规范/02-设计令牌规范.md；本文件仅供工具链（设计稿同步、代码生成、对比度校验）使用，取值必须与规范完全一致。",
+  "meta": {
+    "product": "CodeStreak",
+    "version": "1.0.0",
+    "updated": "2026-10-26",
+    "theme": "dark-only",
+    "source": "docs/02-设计规范/02-设计令牌规范.md"
+  },
+  "color": {
+    "surface": {
+      "canvas": { "$value": "#10141A", "$type": "color", "$description": "画布底色 / 启动窗口" },
+      "lowest": { "$value": "#0A0E14", "$type": "color", "$description": "凹陷区、进度槽、倒计时格" },
+      "low": { "$value": "#181C22", "$type": "color", "$description": "区块货架、列表卡" },
+      "container": { "$value": "#1C2026", "$type": "color", "$description": "通用卡片" },
+      "high": { "$value": "#262A31", "$type": "color", "$description": "焦点卡、弹层、HUD" },
+      "highest": { "$value": "#31353C", "$type": "color", "$description": "徽标底、图标底、次按钮" },
+      "bright": { "$value": "#353940", "$type": "color", "$description": "按压态、高亮行" },
+      "inverse": { "$value": "#DFE2EB", "$type": "color", "$description": "反色表面（Toast）" }
+    },
+    "text": {
+      "primary": { "$value": "#DFE2EB", "$type": "color", "$description": "主文本，对比 ≈14.3:1" },
+      "secondary": { "$value": "#D9C3AD", "$type": "color", "$description": "次要文本，对比 ≈10.9:1" },
+      "tertiary": { "$value": "#A18D7A", "$type": "color", "$description": "元信息，对比 ≈5.8:1" },
+      "ghost": { "$value": "#544434", "$type": "color", "$description": "仅装饰，禁止承载信息（≈2.0:1）" },
+      "inverse": { "$value": "#2D3137", "$type": "color", "$description": "反色表面上的文本" }
+    },
+    "border": {
+      "subtle": { "$value": "#544434", "$type": "color", "$description": "1px 内描边" },
+      "strong": { "$value": "#31353C", "$type": "color", "$description": "强调描边" }
+    },
+    "primary": {
+      "base": { "$value": "#FFC78B", "$type": "color", "$description": "琥珀浅色" },
+      "container": { "$value": "#FFA116", "$type": "color", "$description": "核心琥珀：主按钮/连续天数/选中态" },
+      "onContainer": { "$value": "#482900", "$type": "color", "$description": "琥珀底文本（6.5:1）" },
+      "onContainerAlt": { "$value": "#683E00", "$type": "color", "$description": "琥珀底大字号文本（4.5:1）" },
+      "fixed": { "$value": "#FFDDBA", "$type": "color", "$description": "里程碑文本" },
+      "fixedDim": { "$value": "#FFB867", "$type": "color", "$description": "★4 难度" },
+      "glow": { "$value": "rgba(255,161,22,0.10)", "$type": "color", "$description": "HUD 环境光晕（仅限三处）" }
+    },
+    "secondary": {
+      "base": { "$value": "#4EDEA3", "$type": "color", "$description": "AC / 成功 / 正向" },
+      "container": { "$value": "#00A572", "$type": "color", "$description": "完成态按钮底" },
+      "onContainer": { "$value": "#00311F", "$type": "color", "$description": "翡翠 container 底文本" },
+      "onSolid": { "$value": "#003824", "$type": "color", "$description": "翡翠实心底文本（约 7.8:1）" },
+      "fixed": { "$value": "#6FFBBE", "$type": "color", "$description": "热力图最高档" }
+    },
+    "tertiary": {
+      "base": { "$value": "#BFD2FF", "$type": "color", "$description": "分析 / 平台 / 导航辅助" },
+      "container": { "$value": "#94B6FF", "$type": "color", "$description": "蓝色底" },
+      "onContainer": { "$value": "#004496", "$type": "color", "$description": "蓝 container 底文本" },
+      "onSolid": { "$value": "#002E6A", "$type": "color", "$description": "天蓝实心底文本（约 9.1:1）" }
+    },
+    "error": {
+      "base": { "$value": "#FFB4AB", "$type": "color", "$description": "错误 / 洛谷 / ★5" },
+      "container": { "$value": "#93000A", "$type": "color", "$description": "错误底（20% 透明使用）" },
+      "onContainer": { "$value": "#FFDAD6", "$type": "color", "$description": "错误 container 底文本" },
+      "onSolid": { "$value": "#690005", "$type": "color", "$description": "告警红实心底文本（约 8.6:1）" }
+    },
+    "platform": {
+      "leetcode": { "$value": "#FFA116", "$type": "color", "$description": "LeetCode → primary.container" },
+      "codeforces": { "$value": "#BFD2FF", "$type": "color", "$description": "Codeforces → tertiary" },
+      "atcoder": { "$value": "#4EDEA3", "$type": "color", "$description": "AtCoder → secondary" },
+      "luogu": { "$value": "#FFB4AB", "$type": "color", "$description": "洛谷 → error" }
+    },
+    "difficulty": {
+      "d1": { "$value": "#4EDEA3", "$type": "color", "$description": "★1 入门" },
+      "d2": { "$value": "#4EDEA3", "$type": "color", "$description": "★2 基础" },
+      "d3": { "$value": "#FFA116", "$type": "color", "$description": "★3 进阶" },
+      "d4": { "$value": "#FFB867", "$type": "color", "$description": "★4 困难" },
+      "d5": { "$value": "#FFB4AB", "$type": "color", "$description": "★5 挑战" }
+    },
+    "heatmap": {
+      "level0": { "$value": "#0A0E14", "$type": "color", "$description": "0 题" },
+      "level1": { "$value": "#00A572", "$type": "color", "$description": "1–2 题" },
+      "level2": { "$value": "#4EDEA3", "$type": "color", "$description": "3–5 题" },
+      "level3": { "$value": "#6FFBBE", "$type": "color", "$description": "6–8 题" },
+      "level4": { "$value": "#6FFBBE", "$type": "color", "$description": "≥9 题（附加 0 0 6px rgba(111,251,190,.6) 光晕与 1px 描边）" }
+    }
+  },
+  "typography": {
+    "fontFamily": {
+      "display": { "$value": "Space Grotesk", "$type": "fontFamily", "$description": "标题与数字（拉丁/数字）" },
+      "body": { "$value": "Geist, HarmonyOS Sans SC", "$type": "fontFamily", "$description": "正文；中文回退 HarmonyOS Sans SC" },
+      "mono": { "$value": "JetBrains Mono", "$type": "fontFamily", "$description": "元信息、编号、时间" }
+    },
+    "headline-xl": { "$value": { "fontFamily": "Space Grotesk", "fontSize": "40fp", "fontWeight": "700", "lineHeight": "48fp", "letterSpacing": "-0.03em" }, "$type": "typography" },
+    "headline-xl-mobile": { "$value": { "fontFamily": "Space Grotesk", "fontSize": "32fp", "fontWeight": "700", "lineHeight": "40fp", "letterSpacing": "-0.02em" }, "$type": "typography" },
+    "headline-lg": { "$value": { "fontFamily": "Space Grotesk", "fontSize": "28fp", "fontWeight": "600", "lineHeight": "36fp", "letterSpacing": "-0.02em" }, "$type": "typography" },
+    "headline-sm": { "$value": { "fontFamily": "Space Grotesk", "fontSize": "20fp", "fontWeight": "600", "lineHeight": "28fp", "letterSpacing": "-0.01em" }, "$type": "typography" },
+    "body-lg": { "$value": { "fontFamily": "Geist", "fontSize": "16fp", "fontWeight": "400", "lineHeight": "24fp" }, "$type": "typography" },
+    "body-md": { "$value": { "fontFamily": "Geist", "fontSize": "14fp", "fontWeight": "400", "lineHeight": "20fp" }, "$type": "typography" },
+    "body-sm": { "$value": { "fontFamily": "Geist", "fontSize": "12fp", "fontWeight": "400", "lineHeight": "18fp" }, "$type": "typography" },
+    "label-lg": { "$value": { "fontFamily": "JetBrains Mono", "fontSize": "14fp", "fontWeight": "500", "lineHeight": "20fp", "letterSpacing": "0.02em" }, "$type": "typography" },
+    "label-md": { "$value": { "fontFamily": "JetBrains Mono", "fontSize": "12fp", "fontWeight": "500", "lineHeight": "16fp", "letterSpacing": "0.03em" }, "$type": "typography" },
+    "label-sm": { "$value": { "fontFamily": "JetBrains Mono", "fontSize": "10fp", "fontWeight": "500", "lineHeight": "14fp", "letterSpacing": "0.05em" }, "$type": "typography" }
+  },
+  "spacing": {
+    "xs": { "$value": "4vp", "$type": "dimension" },
+    "sm": { "$value": "8vp", "$type": "dimension" },
+    "md": { "$value": "12vp", "$type": "dimension" },
+    "lg": { "$value": "20vp", "$type": "dimension" },
+    "xl": { "$value": "28vp", "$type": "dimension" },
+    "gutter": { "$value": "16vp", "$type": "dimension" },
+    "margin": { "$value": "16vp", "$type": "dimension" }
+  },
+  "radius": {
+    "xs": { "$value": "2vp", "$type": "dimension", "$description": "热力块" },
+    "sm": { "$value": "4vp", "$type": "dimension", "$description": "标签、难度徽标" },
+    "md": { "$value": "6vp", "$type": "dimension", "$description": "小控件、周矩阵格" },
+    "lg": { "$value": "8vp", "$type": "dimension", "$description": "按钮、图标块" },
+    "xl": { "$value": "12vp", "$type": "dimension", "$description": "卡片、底部抽屉上圆角" },
+    "full": { "$value": "999vp", "$type": "dimension", "$description": "仅状态胶囊与筛选胶囊" }
+  },
+  "size": {
+    "appBarHeight": { "$value": "64vp", "$type": "dimension" },
+    "tabBarHeight": { "$value": "64vp", "$type": "dimension" },
+    "touchTargetMin": { "$value": "44vp", "$type": "dimension" },
+    "heatmapCell": { "$value": "10vp", "$type": "dimension" },
+    "heatmapGap": { "$value": "2vp", "$type": "dimension" },
+    "weekMatrixCell": { "$value": "28vp", "$type": "dimension" },
+    "iconSm": { "$value": "14vp", "$type": "dimension" },
+    "iconMd": { "$value": "18vp", "$type": "dimension" },
+    "iconLg": { "$value": "22vp", "$type": "dimension" }
+  },
+  "motion": {
+    "duration": {
+      "press": { "$value": "90ms", "$type": "duration" },
+      "enter": { "$value": "180ms", "$type": "duration" },
+      "exit": { "$value": "120ms", "$type": "duration" },
+      "sheet": { "$value": "240ms", "$type": "duration" },
+      "celebrate": { "$value": "320ms", "$type": "duration" },
+      "progress": { "$value": "500ms", "$type": "duration" }
+    },
+    "easing": {
+      "standard": { "$value": "cubic-bezier(0.2, 0, 0, 1)", "$type": "cubicBezier" },
+      "decelerate": { "$value": "cubic-bezier(0, 0, 0.2, 1)", "$type": "cubicBezier" }
+    }
+  }
+}

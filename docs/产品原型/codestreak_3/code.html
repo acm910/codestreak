@@ -1,0 +1,433 @@
+<!DOCTYPE html><html class="dark" lang="zh-CN"><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"><meta content="mobile_tab" name="shell-type"><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"><link href="https://fonts.googleapis.com" rel="preconnect"><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"><link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;family=Space+Grotesk:wght@600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"><style>@layer base{html,body{width:100vw;margin:0;padding:0;background-color:#10141a;}body{overscroll-behavior:none;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "background": "#10141a", "surface": "#10141a", "tertiary-fixed-dim": "#adc6ff", "on-surface-variant": "#d9c3ad", "surface-dim": "#10141a", "primary-fixed-dim": "#ffb867", "on-primary-fixed": "#2b1700", "primary-fixed": "#ffddba", "secondary-container": "#00a572", "on-tertiary-fixed": "#001a42", "on-surface": "#dfe2eb", "surface-container-low": "#181c22", "on-background": "#dfe2eb", "inverse-surface": "#dfe2eb", "tertiary-fixed": "#d8e2ff", "primary-container": "#ffa116", "surface-container-highest": "#31353c", "inverse-primary": "#875200", "tertiary-container": "#94b6ff", "outline": "#a18d7a", "on-tertiary-fixed-variant": "#004395", "error-container": "#93000a", "on-secondary-container": "#00311f", "on-secondary-fixed-variant": "#005236", "secondary": "#4edea3", "primary": "#ffc78b", "surface-variant": "#31353c", "surface-container": "#1c2026", "surface-bright": "#353940", "error": "#ffb4ab", "inverse-on-surface": "#2d3137", "on-secondary-fixed": "#002113", "surface-container-high": "#262a31", "outline-variant": "#544434", "surface-tint": "#ffb867", "on-primary-fixed-variant": "#673d00", "on-secondary": "#003824", "on-error-container": "#ffdad6", "secondary-fixed": "#6ffbbe", "on-error": "#690005", "on-tertiary-container": "#004496", "tertiary": "#bfd2ff", "on-primary-container": "#683e00", "surface-container-lowest": "#0a0e14", "on-tertiary": "#002e6a", "on-primary": "#482900", "secondary-fixed-dim": "#4edea3" }, "borderRadius": { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" }, "spacing": { "gutter": "1rem", "space-sm": "0.5rem", "space-xl": "1.75rem", "margin": "1rem", "space-md": "0.75rem", "space-xs": "0.25rem", "space-lg": "1.25rem" }, "fontFamily": { "label-lg": [ "JetBrains Mono" ], "body-sm": [ "Geist" ], "headline-lg": [ "Space Grotesk" ], "headline-sm": [ "Space Grotesk" ], "headline-xl-mobile": [ "Space Grotesk" ], "label-sm": [ "JetBrains Mono" ], "body-lg": [ "Geist" ], "headline-xl": [ "Space Grotesk" ], "label-md": [ "JetBrains Mono" ], "body-md": [ "Geist" ] }, "fontSize": { "label-lg": [ "14px", { "lineHeight": "20px", "letterSpacing": "0.02em", "fontWeight": "500" } ], "body-sm": [ "12px", { "lineHeight": "18px", "fontWeight": "400" } ], "headline-lg": [ "28px", { "lineHeight": "36px", "letterSpacing": "-0.02em", "fontWeight": "600" } ], "headline-sm": [ "20px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600" } ], "headline-xl-mobile": [ "32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" } ], "label-sm": [ "10px", { "lineHeight": "14px", "letterSpacing": "0.05em", "fontWeight": "500" } ], "body-lg": [ "16px", { "lineHeight": "24px", "fontWeight": "400" } ], "headline-xl": [ "40px", { "lineHeight": "48px", "letterSpacing": "-0.03em", "fontWeight": "700" } ], "label-md": [ "12px", { "lineHeight": "16px", "letterSpacing": "0.03em", "fontWeight": "500" } ], "body-md": [ "14px", { "lineHeight": "20px", "fontWeight": "400" } ] } } } }</script></head><body class="bg-surface text-on-surface font-body-md text-body-md min-h-screen flex flex-col antialiased selection:bg-primary-container selection:text-on-primary-container"><header class="fixed top-0 w-full z-50 pt-safe bg-surface/85 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.25)]"><div class="h-16 px-gutter flex items-center justify-between"><div class="flex items-center gap-space-sm"><div class="w-9 h-9 rounded-lg bg-surface-container-high flex items-center justify-center text-primary-container"><span class="material-symbols-outlined text-[20px]">terminal</span></div><div class="flex flex-col"><span class="font-label-sm text-label-sm text-outline tracking-widest uppercase">CODESTREAK // CLI</span><span class="font-headline-sm text-headline-sm tracking-tight text-on-surface">Contests</span></div></div><div class="flex items-center gap-space-sm"><button aria-label="Sync Platforms" class="w-11 h-11 flex items-center justify-center rounded-lg text-on-surface-variant hover:text-primary transition-colors"><span class="material-symbols-outlined text-[20px]">sync</span></button><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="flex-1 w-full bg-surface pt-16 pb-24 px-gutter flex flex-col"><div class="flex flex-col w-full gap-space-lg">
+<!-- 顶部近期待参赛提醒：HUD 战术倒计时面板 -->
+<section class="relative overflow-hidden rounded-xl bg-surface-container-high p-space-md shadow-md">
+<div class="absolute -right-12 -top-12 w-40 h-40 bg-primary-container/10 rounded-full blur-2xl pointer-events-none"></div>
+<div class="flex items-center justify-between gap-space-xs mb-space-sm"><div class="flex items-center gap-space-xs"><span class="inline-flex items-center justify-center w-5 h-5 rounded-sm bg-primary-container text-on-primary-container"><span class="material-symbols-outlined text-[14px]">flag</span></span><span class="font-label-sm text-label-sm uppercase tracking-wider text-primary">NEXT DISPATCH // ICPC &amp; CF 参赛倒计时</span></div><div class="flex items-center gap-1.5"><span class="inline-flex items-center gap-1 font-label-sm text-label-sm text-tertiary bg-surface-container-highest px-space-xs py-0.5 rounded"><span class="material-symbols-outlined text-[12px]">groups</span>三人组队已确认</span><span class="inline-flex items-center gap-1 font-label-sm text-label-sm text-secondary bg-surface-container-highest px-space-xs py-0.5 rounded"><span class="w-1.5 h-1.5 rounded-full bg-secondary animate-pulse"></span>已报名</span></div></div>
+<div class="flex flex-col gap-1 mb-space-md">
+<div class="flex items-baseline justify-between">
+<h2 class="font-headline-sm text-headline-sm text-on-surface font-semibold tracking-tight">Codeforces Round 950 (Div. 2)</h2>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-tertiary">schedule</span>
+        预计于明日 22:35 开赛 • 时长 120 分钟 • Rating ≤ 2100
+      </p>
+</div>
+<!-- 倒计时数字模块 -->
+<div class="grid grid-cols-4 gap-space-xs mb-space-md">
+<div class="flex flex-col items-center justify-center p-space-xs rounded bg-surface-container-lowest">
+<span class="font-headline-sm text-headline-sm text-primary font-bold tabular-nums" id="cd-days">01</span>
+<span class="font-label-sm text-label-sm text-outline tracking-wider">DAYS</span>
+</div>
+<div class="flex flex-col items-center justify-center p-space-xs rounded bg-surface-container-lowest">
+<span class="font-headline-sm text-headline-sm text-primary font-bold tabular-nums" id="cd-hours">04</span>
+<span class="font-label-sm text-label-sm text-outline tracking-wider">HOURS</span>
+</div>
+<div class="flex flex-col items-center justify-center p-space-xs rounded bg-surface-container-lowest">
+<span class="font-headline-sm text-headline-sm text-primary font-bold tabular-nums" id="cd-mins">20</span>
+<span class="font-label-sm text-label-sm text-outline tracking-wider">MINS</span>
+</div>
+<div class="flex flex-col items-center justify-center p-space-xs rounded bg-surface-container-lowest">
+<span class="font-headline-sm text-headline-sm text-secondary font-bold tabular-nums" id="cd-secs">10</span>
+<span class="font-label-sm text-label-sm text-outline tracking-wider">SECS</span>
+</div>
+</div>
+<!-- 交互操作按钮 -->
+<div class="grid grid-cols-3 gap-space-xs"><button class="flex items-center justify-center gap-1 py-space-sm px-space-xs rounded bg-primary-container text-on-primary-container active:translate-y-0.5 transition-transform shadow-sm" id="btn-remind"><span class="material-symbols-outlined text-[16px]">notifications_active</span><span class="font-label-md text-label-md font-semibold">预约提醒</span></button><button class="flex items-center justify-center gap-1 py-space-sm px-space-xs rounded bg-surface-container-highest text-tertiary active:translate-y-0.5 transition-transform shadow-sm" id="btn-team-remind"><span class="material-symbols-outlined text-[16px]">group_add</span><span class="font-label-md text-label-md font-semibold">提醒队友</span></button><button class="flex items-center justify-center gap-1 py-space-sm px-space-xs rounded bg-surface-container-highest text-on-surface active:translate-y-0.5 transition-transform shadow-sm" id="btn-sync"><span class="material-symbols-outlined text-[16px] text-tertiary">edit_calendar</span><span class="font-label-md text-label-md font-semibold">日历.ICS</span></button></div>
+</section>
+<!-- 补题完成率仪表板 (Upsolving Velocity) -->
+<section class="flex flex-col gap-space-sm p-space-md rounded-xl bg-surface-container-low shadow-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary text-[20px]">troubleshoot</span>
+<span class="font-label-md text-label-md text-on-surface font-semibold uppercase tracking-wider">赛后补题完成率 // MONTHLY UPSOLVE</span>
+</div>
+<span class="font-label-sm text-label-sm text-secondary bg-surface-container px-space-xs py-0.5 rounded flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px]">trending_up</span> +12% 较上月
+      </span>
+</div>
+<div class="flex items-baseline justify-between mt-1">
+<div class="flex items-baseline gap-space-xs">
+<span class="font-headline-xl-mobile text-headline-xl-mobile font-bold text-primary tabular-nums">75%</span>
+<span class="font-label-sm text-label-sm text-outline tracking-wide">TARGET 80% (15/20 题已解决)</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Lv.3 架构师级执行力</span>
+</div>
+<!-- 极客风格进度分段条 -->
+<div class="w-full bg-surface-container-lowest h-3 rounded-sm p-0.5 flex gap-1">
+<div class="bg-secondary h-full rounded-sm transition-all duration-500" style="width: 75%;"></div>
+<div class="bg-primary/20 h-full rounded-sm flex-1"></div>
+</div>
+<div class="grid grid-cols-3 gap-space-xs pt-space-xs">
+<div class="bg-surface-container p-space-xs rounded flex flex-col items-center">
+<span class="font-label-sm text-label-sm text-outline">已补题数</span>
+<span class="font-label-lg text-label-lg text-on-surface font-bold">15 题</span>
+</div>
+<div class="bg-surface-container p-space-xs rounded flex flex-col items-center">
+<span class="font-label-sm text-label-sm text-outline">待击破</span>
+<span class="font-label-lg text-label-lg text-primary font-bold">05 题</span>
+</div>
+<div class="bg-surface-container p-space-xs rounded flex flex-col items-center">
+<span class="font-label-sm text-label-sm text-outline">平均补题时差</span>
+<span class="font-label-lg text-label-lg text-tertiary font-bold">18.4h</span>
+</div>
+</div>
+</section>
+<!-- 跨平台比赛日历视图 -->
+<section class="flex flex-col gap-space-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-tertiary text-[20px]">calendar_month</span>
+<span class="font-headline-sm text-headline-sm text-on-surface">跨平台比赛日历</span>
+</div>
+<span class="font-label-sm text-label-sm text-outline font-mono">W23 • 2025</span>
+</div>
+<!-- 简易周视图横向滑动天数锚点 -->
+<div class="flex items-center justify-between bg-surface-container-low p-space-xs rounded-lg text-center">
+<div class="flex-1 py-1 rounded bg-transparent text-on-surface-variant flex flex-col items-center">
+<span class="font-label-sm text-label-sm">四</span>
+<span class="font-label-md text-label-md">05</span>
+</div>
+<div class="flex-1 py-1 rounded bg-transparent text-on-surface-variant flex flex-col items-center">
+<span class="font-label-sm text-label-sm">五</span>
+<span class="font-label-md text-label-md">06</span>
+</div>
+<div class="flex-1 py-1 rounded bg-surface-container-high text-primary flex flex-col items-center relative">
+<span class="font-label-sm text-label-sm">六</span>
+<span class="font-label-md text-label-md font-bold">07</span>
+<span class="w-1 h-1 rounded-full bg-primary mt-0.5"></span>
+</div>
+<div class="flex-1 py-1 rounded bg-surface-container text-tertiary flex flex-col items-center relative">
+<span class="font-label-sm text-label-sm">日</span>
+<span class="font-label-md text-label-md font-bold">08</span>
+<span class="w-1 h-1 rounded-full bg-tertiary mt-0.5"></span>
+</div>
+<div class="flex-1 py-1 rounded bg-transparent text-on-surface-variant flex flex-col items-center">
+<span class="font-label-sm text-label-sm">一</span>
+<span class="font-label-md text-label-md">09</span>
+</div>
+<div class="flex-1 py-1 rounded bg-surface-container text-primary flex flex-col items-center relative">
+<span class="font-label-sm text-label-sm">二</span>
+<span class="font-label-md text-label-md font-bold">10</span>
+<span class="w-1 h-1 rounded-full bg-secondary mt-0.5"></span>
+</div>
+<div class="flex-1 py-1 rounded bg-transparent text-on-surface-variant flex flex-col items-center">
+<span class="font-label-sm text-label-sm">三</span>
+<span class="font-label-md text-label-md">11</span>
+</div>
+</div>
+<!-- 过滤器 Chips -->
+<div class="flex items-center gap-space-xs overflow-x-auto pb-1" id="filter-container"><button class="filter-chip whitespace-nowrap px-space-md py-1 rounded-full font-label-md text-label-md bg-primary-container text-on-primary-container font-semibold" data-filter="all">全部 (10)</button><button class="filter-chip whitespace-nowrap px-space-md py-1 rounded-full font-label-md text-label-md bg-surface-container-high text-on-surface-variant hover:text-on-surface" data-filter="collegiate">ICPC / CCPC 高校赛</button><button class="filter-chip whitespace-nowrap px-space-md py-1 rounded-full font-label-md text-label-md bg-surface-container-high text-on-surface-variant hover:text-on-surface" data-filter="codeforces">Codeforces</button><button class="filter-chip whitespace-nowrap px-space-md py-1 rounded-full font-label-md text-label-md bg-surface-container-high text-on-surface-variant hover:text-on-surface" data-filter="leetcode">LeetCode</button><button class="filter-chip whitespace-nowrap px-space-md py-1 rounded-full font-label-md text-label-md bg-surface-container-high text-on-surface-variant hover:text-on-surface" data-filter="atcoder">AtCoder</button><button class="filter-chip whitespace-nowrap px-space-md py-1 rounded-full font-label-md text-label-md bg-surface-container-high text-on-surface-variant hover:text-on-surface" data-filter="luogu">洛谷</button></div>
+<!-- 比赛卡片列表 -->
+<div class="flex flex-col gap-space-sm" id="contest-list"><article class="contest-card flex flex-col p-space-md rounded-xl bg-surface-container-high gap-space-sm shadow-sm transition-all border-l-2 border-primary" data-platform="collegiate"><div class="flex items-start justify-between gap-space-sm"><div class="flex flex-col gap-1 min-w-0"><div class="flex items-center gap-space-xs flex-wrap"><span class="px-1.5 py-0.5 rounded font-label-sm text-label-sm font-bold bg-primary-container text-on-primary-container">ICPC 区域赛</span><span class="px-1.5 py-0.5 rounded font-label-sm text-label-sm bg-surface-container-lowest text-outline">国家级 / 3人组队</span><span class="font-label-sm text-label-sm text-outline">周日 09:00 - 14:00</span><span class="px-1.5 py-0.5 rounded font-label-sm text-label-sm bg-surface-container-lowest text-primary">300分钟</span></div><h3 class="font-body-lg text-body-lg font-medium text-on-surface truncate">2024 ICPC 亚洲区域赛网络预选赛（第一场）</h3></div><span class="px-2 py-0.5 rounded font-label-sm text-label-sm bg-primary-container/20 text-primary font-bold whitespace-nowrap">报名中</span></div><div class="flex items-center justify-between pt-space-xs"><span class="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-1"><span class="material-symbols-outlined text-[15px] text-tertiary">groups</span> 队伍状态：主力队已绑定 (3/3人)</span><div class="flex items-center gap-space-xs"><button class="flex items-center gap-1 px-space-sm py-1 rounded bg-surface-container-highest text-tertiary font-label-md text-label-md hover:bg-tertiary hover:text-on-tertiary transition-colors" onclick="showToast('已向队员发出 ICPC 赛程确认与组队提醒！')"><span class="">一键提醒队友</span><span class="material-symbols-outlined text-[14px]">send</span></button><a class="flex items-center gap-1 px-space-md py-1 rounded bg-primary-container text-on-primary-container font-label-md text-label-md font-semibold hover:opacity-90 transition-opacity" href="https://icpc.global/" rel="noopener noreferrer" target="_blank"><span class="">报名详情</span><span class="material-symbols-outlined text-[14px]">arrow_outward</span></a></div></div></article><article class="contest-card flex flex-col p-space-md rounded-xl bg-surface-container-high gap-space-sm shadow-sm transition-all border-l-2 border-secondary" data-platform="collegiate"><div class="flex items-start justify-between gap-space-sm"><div class="flex flex-col gap-1 min-w-0"><div class="flex items-center gap-space-xs flex-wrap"><span class="px-1.5 py-0.5 rounded font-label-sm text-label-sm font-bold bg-secondary-container text-on-secondary-container">CCPC 分站赛</span><span class="px-1.5 py-0.5 rounded font-label-sm text-label-sm bg-surface-container-lowest text-outline">中国大学生程序设计竞赛</span><span class="font-label-sm text-label-sm text-outline">10-19 09:00</span><span class="px-1.5 py-0.5 rounded font-label-sm text-label-sm bg-surface-container-lowest text-on-surface-variant">300分钟</span></div><h3 class="font-body-lg text-body-lg font-medium text-on-surface truncate">第十届 CCPC 中国大学生程序设计竞赛分站赛 (热身赛+正赛)</h3></div><span class="px-2 py-0.5 rounded font-label-sm text-label-sm bg-surface-container-lowest text-tertiary whitespace-nowrap">备赛中</span></div><div class="flex items-center justify-between pt-space-xs"><span class="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-1"><span class="material-symbols-outlined text-[15px] text-secondary">event_repeat</span> 规则：ICPC 赛制 • 封榜 60 分钟</span><div class="flex items-center gap-space-xs"><button class="flex items-center gap-1 px-space-sm py-1 rounded bg-surface-container-highest text-on-surface font-label-md text-label-md hover:text-primary transition-colors" onclick="showToast('已同步 CCPC 赛程至系统日历并设置开赛前1天提醒！')"><span class="material-symbols-outlined text-[14px] text-tertiary">calendar_add_on</span><span class="">同步日程</span></button><a class="flex items-center gap-1 px-space-md py-1 rounded bg-surface-container-highest text-secondary font-label-md text-label-md hover:bg-secondary-container hover:text-on-secondary-container transition-colors" href="https://ccpc.io/" rel="noopener noreferrer" target="_blank"><span class="">竞赛官网</span><span class="material-symbols-outlined text-[14px]">arrow_outward</span></a></div></div></article>
+<!-- 卡片 1: LeetCode -->
+<article class="contest-card flex flex-col p-space-md rounded-xl bg-surface-container-high gap-space-sm shadow-sm transition-all" data-platform="leetcode">
+<div class="flex items-start justify-between gap-space-sm">
+<div class="flex flex-col gap-1 min-w-0">
+<div class="flex items-center gap-space-xs">
+<span class="px-1.5 py-0.5 rounded font-label-sm text-label-sm font-semibold bg-primary-container/20 text-primary">LeetCode</span>
+<span class="font-label-sm text-label-sm text-outline">周日 10:30 - 12:00</span>
+<span class="px-1.5 py-0.5 rounded font-label-sm text-label-sm bg-surface-container-lowest text-on-surface-variant">90分钟</span>
+</div>
+<h3 class="font-body-lg text-body-lg font-medium text-on-surface truncate">LeetCode 第 398 场周赛</h3>
+</div>
+<span class="px-2 py-0.5 rounded font-label-sm text-label-sm bg-surface-container-lowest text-tertiary whitespace-nowrap">未开始</span>
+</div>
+<div class="flex items-center justify-between pt-space-xs">
+<span class="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[15px] text-secondary">verified_user</span> 已有 14,290 名选手报名
+          </span>
+<a class="flex items-center gap-1 px-space-md py-1 rounded bg-surface-container-highest text-primary font-label-md text-label-md hover:bg-primary-container hover:text-on-primary-container transition-colors" href="https://leetcode.cn/contest/" rel="noopener noreferrer" target="_blank">
+<span class="">报名链接</span>
+<span class="material-symbols-outlined text-[14px]">arrow_outward</span>
+</a>
+</div>
+</article>
+<!-- 卡片 2: Codeforces -->
+<article class="contest-card flex flex-col p-space-md rounded-xl bg-surface-container-high gap-space-sm shadow-sm transition-all" data-platform="codeforces">
+<div class="flex items-start justify-between gap-space-sm">
+<div class="flex flex-col gap-1 min-w-0">
+<div class="flex items-center gap-space-xs">
+<span class="px-1.5 py-0.5 rounded font-label-sm text-label-sm font-semibold bg-tertiary-container/20 text-tertiary">Codeforces</span>
+<span class="font-label-sm text-label-sm text-outline">下周二 22:35</span>
+<span class="px-1.5 py-0.5 rounded font-label-sm text-label-sm bg-surface-container-lowest text-on-surface-variant">120分钟</span>
+</div>
+<h3 class="font-body-lg text-body-lg font-medium text-on-surface truncate">Codeforces Round 951 (Div. 2)</h3>
+</div>
+<span class="px-2 py-0.5 rounded font-label-sm text-label-sm bg-surface-container-lowest text-tertiary whitespace-nowrap">未开始</span>
+</div>
+<div class="flex items-center justify-between pt-space-xs">
+<span class="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[15px] text-outline">timer</span> 距离注册通道关闭还有 2 天
+          </span>
+<a class="flex items-center gap-1 px-space-md py-1 rounded bg-surface-container-highest text-tertiary font-label-md text-label-md hover:bg-tertiary-container hover:text-on-tertiary-container transition-colors" href="https://codeforces.com/contests" rel="noopener noreferrer" target="_blank">
+<span class="">前往CF</span>
+<span class="material-symbols-outlined text-[14px]">arrow_outward</span>
+</a>
+</div>
+</article>
+<!-- 卡片 3: AtCoder -->
+<article class="contest-card flex flex-col p-space-md rounded-xl bg-surface-container-high gap-space-sm shadow-sm transition-all" data-platform="atcoder">
+<div class="flex items-start justify-between gap-space-sm">
+<div class="flex flex-col gap-1 min-w-0">
+<div class="flex items-center gap-space-xs">
+<span class="px-1.5 py-0.5 rounded font-label-sm text-label-sm font-semibold bg-secondary-container/20 text-secondary">AtCoder</span>
+<span class="font-label-sm text-label-sm text-outline">周六 20:00</span>
+<span class="px-1.5 py-0.5 rounded font-label-sm text-label-sm bg-surface-container-lowest text-on-surface-variant">100分钟</span>
+</div>
+<h3 class="font-body-lg text-body-lg font-medium text-on-surface truncate">AtCoder Beginner Contest 356</h3>
+</div>
+<span class="px-2 py-0.5 rounded font-label-sm text-label-sm bg-surface-container-lowest text-tertiary whitespace-nowrap">未开始</span>
+</div>
+<div class="flex items-center justify-between pt-space-xs">
+<span class="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[15px] text-primary">military_tech</span> Rated for ≤ 1999
+          </span>
+<a class="flex items-center gap-1 px-space-md py-1 rounded bg-surface-container-highest text-secondary font-label-md text-label-md hover:bg-secondary-container hover:text-on-secondary-container transition-colors" href="https://atcoder.jp/contests/" rel="noopener noreferrer" target="_blank">
+<span class="">报名竞赛</span>
+<span class="material-symbols-outlined text-[14px]">arrow_outward</span>
+</a>
+</div>
+</article>
+<!-- 卡片 4: 洛谷月赛示例 (保持筛选可用性) -->
+<article class="contest-card flex flex-col p-space-md rounded-xl bg-surface-container-high gap-space-sm shadow-sm transition-all" data-platform="luogu">
+<div class="flex items-start justify-between gap-space-sm">
+<div class="flex flex-col gap-1 min-w-0">
+<div class="flex items-center gap-space-xs">
+<span class="px-1.5 py-0.5 rounded font-label-sm text-label-sm font-semibold bg-error-container/20 text-error">洛谷</span>
+<span class="font-label-sm text-label-sm text-outline">周日 14:00</span>
+<span class="px-1.5 py-0.5 rounded font-label-sm text-label-sm bg-surface-container-lowest text-on-surface-variant">240分钟</span>
+</div>
+<h3 class="font-body-lg text-body-lg font-medium text-on-surface truncate">「LGR-188」洛谷 6 月月赛 I &amp; Code+</h3>
+</div>
+<span class="px-2 py-0.5 rounded font-label-sm text-label-sm bg-surface-container-lowest text-tertiary whitespace-nowrap">未开始</span>
+</div>
+<div class="flex items-center justify-between pt-space-xs">
+<span class="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[15px] text-error">local_fire_department</span> 难度跨度 普及+/提高至省选
+          </span>
+<a class="flex items-center gap-1 px-space-md py-1 rounded bg-surface-container-highest text-error font-label-md text-label-md hover:bg-error-container hover:text-on-error-container transition-colors" href="https://www.luogu.com.cn/contest/list" rel="noopener noreferrer" target="_blank">
+<span class="">进入比赛</span>
+<span class="material-symbols-outlined text-[14px]">arrow_outward</span>
+</a>
+</div>
+</article>
+</div>
+</section>
+<!-- 赛后补题专区 (Upsolving Matrix) -->
+<section class="flex flex-col gap-space-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-secondary text-[20px]">build_circle</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">赛后补题专区 (Upsolving)</h3>
+</div>
+<span class="font-label-sm text-label-sm text-primary bg-primary-container/10 px-2 py-0.5 rounded font-mono">CF Div.3 回溯追踪</span>
+</div>
+<!-- 补题任务流卡片 -->
+<div class="flex flex-col p-space-md rounded-xl bg-surface-container-low gap-space-md shadow-sm">
+<div class="flex items-center justify-between">
+<div class="flex flex-col">
+<span class="font-body-lg text-body-lg font-semibold text-on-surface">Codeforces Round 949 (Div. 3)</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">比赛已结束 • 当前赛后战果：3 AC / 1 待补题</span>
+</div>
+<div class="flex items-center gap-1 font-label-md text-label-md text-secondary bg-surface-container px-space-xs py-1 rounded">
+<span class="material-symbols-outlined text-[16px]">check_circle</span> 75% 完成
+        </div>
+</div>
+<!-- 题目矩阵列表 -->
+<div class="flex flex-col gap-space-xs">
+<!-- A 题 (AC) -->
+<div class="flex items-center justify-between p-space-sm rounded bg-surface-container">
+<div class="flex items-center gap-space-sm min-w-0">
+<span class="w-6 h-6 rounded bg-secondary-container text-on-secondary-container flex items-center justify-center font-label-md text-label-md font-bold">A</span>
+<div class="flex flex-col truncate">
+<span class="font-body-md text-body-md text-on-surface truncate">Turtle and Piggy Are Playing a Game</span>
+<span class="font-label-sm text-label-sm text-outline">★1 签到题 • 贪心/位运算</span>
+</div>
+</div>
+<div class="flex items-center gap-space-xs">
+<span class="font-label-sm text-label-sm text-secondary bg-secondary-container/20 px-2 py-0.5 rounded font-medium">AC (赛中通过)</span>
+</div>
+</div>
+<!-- B 题 (AC) -->
+<div class="flex items-center justify-between p-space-sm rounded bg-surface-container">
+<div class="flex items-center gap-space-sm min-w-0">
+<span class="w-6 h-6 rounded bg-secondary-container text-on-secondary-container flex items-center justify-center font-label-md text-label-md font-bold">B</span>
+<div class="flex flex-col truncate">
+<span class="font-body-md text-body-md text-on-surface truncate">Turtle and an Infinite Sequence</span>
+<span class="font-label-sm text-label-sm text-outline">★2 构造/位运算分析</span>
+</div>
+</div>
+<div class="flex items-center gap-space-xs">
+<span class="font-label-sm text-label-sm text-secondary bg-secondary-container/20 px-2 py-0.5 rounded font-medium">AC (赛中通过)</span>
+</div>
+</div>
+<!-- C 题 (AC) -->
+<div class="flex items-center justify-between p-space-sm rounded bg-surface-container">
+<div class="flex items-center gap-space-sm min-w-0">
+<span class="w-6 h-6 rounded bg-secondary-container text-on-secondary-container flex items-center justify-center font-label-md text-label-md font-bold">C</span>
+<div class="flex flex-col truncate">
+<span class="font-body-md text-body-md text-on-surface truncate">Turtle and an Incomplete Sequence</span>
+<span class="font-label-sm text-label-sm text-outline">★2.5 二叉树/LCA/构造</span>
+</div>
+</div>
+<div class="flex items-center gap-space-xs">
+<span class="font-label-sm text-label-sm text-secondary bg-secondary-container/20 px-2 py-0.5 rounded font-medium">AC (赛后补题已录入)</span>
+</div>
+</div>
+<!-- D 题 (待补题) Focus Item -->
+<div class="flex flex-col p-space-sm rounded bg-surface-container-high gap-space-sm relative overflow-hidden">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-primary-container"></div>
+<div class="flex items-center justify-between min-w-0">
+<div class="flex items-center gap-space-sm min-w-0 pl-1">
+<span class="w-6 h-6 rounded bg-primary-container text-on-primary-container flex items-center justify-center font-label-md text-label-md font-bold">D</span>
+<div class="flex flex-col truncate">
+<span class="font-body-md text-body-md text-on-surface font-semibold truncate">Turtle and a MEX Problem</span>
+<span class="font-label-sm text-label-sm text-primary-fixed-dim">★3 难度 • 图论/MEX/有向图DP</span>
+</div>
+</div>
+<span class="font-label-sm text-label-sm text-primary bg-primary-container/20 px-2 py-0.5 rounded font-bold whitespace-nowrap">待补题</span>
+</div>
+<!-- 补题操作触发排 -->
+<div class="flex items-center justify-between pt-1 pl-1">
+<div class="flex items-center gap-1 font-body-sm text-body-sm text-on-surface-variant">
+<span class="material-symbols-outlined text-[16px] text-tertiary">lightbulb</span>
+<span class="">建议参考官方 Editorial 的 MEX 状态有向建图</span>
+</div>
+<div class="flex items-center gap-space-xs">
+<a class="flex items-center gap-1 px-space-sm py-1 rounded bg-surface-container-highest text-tertiary font-label-md text-label-md hover:bg-tertiary hover:text-on-tertiary transition-colors" href="https://codeforces.com/contest/1981/problem/D" rel="noopener noreferrer" target="_blank">
+<span class="">去CF补题</span>
+<span class="material-symbols-outlined text-[13px]">open_in_new</span>
+</a>
+<button class="flex items-center gap-1 px-space-sm py-1 rounded bg-primary-container text-on-primary-container font-label-md text-label-md font-semibold active:scale-95 transition-transform" id="btn-mark-d">
+<span class="material-symbols-outlined text-[14px]">check</span>
+<span id="mark-text" class="">打卡AC</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- 赛训心流提示 Toast 容器 -->
+<div class="fixed bottom-20 left-1/2 -translate-x-1/2 z-50 px-space-md py-space-sm rounded-lg bg-inverse-surface text-inverse-on-surface font-label-md text-label-md shadow-xl transition-all duration-300 opacity-0 pointer-events-none flex items-center gap-space-xs" id="toast">
+<span class="material-symbols-outlined text-[18px] text-secondary">task_alt</span>
+<span id="toast-msg" class="">已成功添加到提醒清单</span>
+</div>
+</div>
+<script>
+  (function initContestApp() {
+    // 动态秒数倒计时
+    let secs = 38;
+    let mins = 22;
+    let hours = 4;
+    let days = 1;
+
+    const secEl = document.getElementById('cd-secs');
+    const minEl = document.getElementById('cd-mins');
+    const hourEl = document.getElementById('cd-hours');
+    const dayEl = document.getElementById('cd-days');
+
+    setInterval(() => {
+      secs--;
+      if (secs < 0) {
+        secs = 59;
+        mins--;
+        if (mins < 0) {
+          mins = 59;
+          hours--;
+          if (hours < 0) {
+            hours = 23;
+            days = Math.max(0, days - 1);
+            if (dayEl) dayEl.textContent = String(days).padStart(2, '0');
+          }
+          if (hourEl) hourEl.textContent = String(hours).padStart(2, '0');
+        }
+        if (minEl) minEl.textContent = String(mins).padStart(2, '0');
+      }
+      if (secEl) secEl.textContent = String(secs).padStart(2, '0');
+    }, 1000);
+
+    // Toast 提示
+    const toast = document.getElementById('toast');
+    const toastMsg = document.getElementById('toast-msg');
+    let toastTimeout;
+
+    function showToast(msg) {
+      if (!toast) return;
+      if (toastTimeout) clearTimeout(toastTimeout);
+      toastMsg.textContent = msg;
+      toast.classList.remove('opacity-0', 'pointer-events-none');
+      toast.classList.add('opacity-100');
+      toastTimeout = setTimeout(() => {
+        toast.classList.add('opacity-0', 'pointer-events-none');
+        toast.classList.remove('opacity-100');
+      }, 2500);
+    }
+
+    // 预约提醒 & 日历同步交互
+    const btnRemind = document.getElementById('btn-remind');
+    if (btnRemind) {
+      btnRemind.addEventListener('click', () => {
+        showToast('已开启 CF Round 950 赛前 15 分钟推送提醒！');
+      });
+    }
+
+    const btnSync = document.getElementById('btn-sync');
+    if (btnSync) {
+      btnSync.addEventListener('click', () => {
+        showToast('已将赛事日历 (.ics) 同步至系统日程表！');
+      });
+    }
+
+    // 平台过滤交互
+    const chips = document.querySelectorAll('.filter-chip');
+    const cards = document.querySelectorAll('.contest-card');
+
+    chips.forEach(chip => {
+      chip.addEventListener('click', () => {
+        const filter = chip.getAttribute('data-filter');
+
+        chips.forEach(c => {
+          c.classList.remove('bg-primary-container', 'text-on-primary-container', 'font-semibold');
+          c.classList.add('bg-surface-container-high', 'text-on-surface-variant');
+        });
+
+        chip.classList.add('bg-primary-container', 'text-on-primary-container', 'font-semibold');
+        chip.classList.remove('bg-surface-container-high', 'text-on-surface-variant');
+
+        cards.forEach(card => {
+          const platform = card.getAttribute('data-platform');
+          if (filter === 'all' || platform === filter) {
+            card.classList.remove('hidden');
+          } else {
+            card.classList.add('hidden');
+          }
+        });
+      });
+    });
+
+    // 赛后 D 题 AC 打卡状态切换
+    const btnMarkD = document.getElementById('btn-mark-d');
+    const markText = document.getElementById('mark-text');
+    let isMarked = false;
+
+    if (btnMarkD) {
+      btnMarkD.addEventListener('click', () => {
+        isMarked = !isMarked;
+        if (isMarked) {
+          btnMarkD.classList.remove('bg-primary-container', 'text-on-primary-container');
+          btnMarkD.classList.add('bg-secondary-container', 'text-on-secondary-container');
+          markText.textContent = '已打卡 AC';
+          showToast('Codeforces Div.3 - D 题补题记录已同步！完成率升至 80%');
+        } else {
+          btnMarkD.classList.add('bg-primary-container', 'text-on-primary-container');
+          btnMarkD.classList.remove('bg-secondary-container', 'text-on-secondary-container');
+          markText.textContent = '打卡AC';
+        }
+      });
+    }
+  })();
+</script></main><nav class="fixed bottom-0 w-full z-50 pb-safe bg-surface-container-lowest/90 backdrop-blur-xl shadow-[0_-1px_12px_rgba(0,0,0,0.35)]" data-active-classes="text-primary-container font-medium"><div class="h-16 px-space-xs grid grid-cols-4 items-center"><a class="flex flex-col items-center justify-center h-12 w-full gap-space-xs text-on-surface-variant hover:text-on-surface transition-colors" data-path="today" href="#"><span class="material-symbols-outlined text-[22px]">local_fire_department</span><span class="font-label-sm text-label-sm">今日打卡</span></a><a class="flex flex-col items-center justify-center h-12 w-full gap-space-xs text-on-surface-variant hover:text-on-surface transition-colors" data-path="problem-sets" href="#"><span class="material-symbols-outlined text-[22px]">data_object</span><span class="font-label-sm text-label-sm">题单矩阵</span></a><a aria-current="page" class="flex flex-col items-center justify-center h-12 w-full gap-space-xs transition-colors text-primary-container font-medium" data-path="contests" href="#"><span class="material-symbols-outlined text-[22px]">event_available</span><span class="font-label-sm text-label-sm">比赛日历</span></a><a class="flex flex-col items-center justify-center h-12 w-full gap-space-xs text-on-surface-variant hover:text-on-surface transition-colors" data-path="stats" href="#"><span class="material-symbols-outlined text-[22px]">leaderboard</span><span class="font-label-sm text-label-sm">统计榜单</span></a></div></nav>
+
+</body></html>
