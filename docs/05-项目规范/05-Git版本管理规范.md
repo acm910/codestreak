@@ -225,8 +225,9 @@ git reflog
 | 5 | `feat(ui): 四个一级页与组件库` | `components/`、`views/`、`pages/Index.ets` |
 | 6 | `test: 补充难度、日期与打卡状态机单测` | `entry/src/test/` |
 | 7 | `docs: 建立设计文档体系与 Git 规范` | `docs/` 全部文档、`README.md` |
+| 8 | `chore(repo): 补齐模块级忽略与 ohosTest 脚手架` | `entry/.gitignore`、`entry/src/mock/`、`entry/src/ohosTest/` |
 
-> 首次提交后创建 `develop` 分支并打 `v0.1.0` 里程碑标签（M2 四页闭环）。
+> 首次提交后创建 `develop` 分支并打 `v0.1.0` 里程碑标签（M2 四页闭环）；标签随后续补提交移动至最新的纳管状态。
 
 ## 13. 变更记录
 
