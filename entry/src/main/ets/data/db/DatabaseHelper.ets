@@ -2,6 +2,7 @@ import { common } from '@kit.AbilityKit';
 import { relationalStore } from '@kit.ArkData';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import { SyncSubmission } from '../../model/SyncModels';
+import { DailyAcCount } from '../../model/Entities';
 import { DateUtil } from '../../utils/DateUtil';
 import { DbSchema } from './DbSchema';
 
@@ -269,6 +270,38 @@ export class DatabaseHelper {
       hilog.error(DOMAIN, TAG, 'countDailyAc failed: %{public}s', JSON.stringify(err));
       return 0;
     }
+  }
+
+  /** 提交总行数（判断是否有真实数据） */
+  static async totalSubmissions(): Promise<number> {
+    return DatabaseHelper.countRows('submission');
+  }
+
+  /** 区间内按日聚合 AC（热力图用） */
+  static async loadDailyCounts(startDay: string, endDay: string): Promise<DailyAcCount[]> {
+    const store: relationalStore.RdbStore | null = DatabaseHelper.store;
+    if (store === null) {
+      return [];
+    }
+    const result: DailyAcCount[] = [];
+    try {
+      const resultSet: relationalStore.ResultSet = await store.querySql(
+        'SELECT local_day AS d, COUNT(DISTINCT problem_key) AS c FROM submission ' +
+          'WHERE is_ac = 1 AND local_day >= ? AND local_day <= ? GROUP BY local_day ORDER BY local_day',
+        [startDay, endDay]
+      );
+      while (resultSet.goToNextRow()) {
+        const item: DailyAcCount = {
+          day: resultSet.getString(resultSet.getColumnIndex('d')),
+          count: resultSet.getLong(resultSet.getColumnIndex('c'))
+        };
+        result.push(item);
+      }
+      resultSet.close();
+    } catch (err) {
+      hilog.error(DOMAIN, TAG, 'loadDailyCounts failed: %{public}s', JSON.stringify(err));
+    }
+    return result;
   }
 
   /** 通用行数统计（内部使用） */

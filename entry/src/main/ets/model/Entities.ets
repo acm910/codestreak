@@ -149,6 +149,13 @@ export interface ChallengeCardData {
   ratingText: string;
 }
 
+/** 某日 AC 聚合（热力图数据源） */
+export interface DailyAcCount {
+  /** YYYY-MM-DD */
+  day: string;
+  count: number;
+}
+
 /** 页面级统计快照 */
 export interface TodaySnapshot {
   status: CheckInStatus;

@@ -6,6 +6,8 @@ import codeforcesMapperTest from './CodeforcesMapper.test';
 import syncPolicyTest from './SyncPolicy.test';
 import atCoderMapperTest from './AtCoderMapper.test';
 import cpcfinderMapperTest from './CpcfinderMapper.test';
+import heatmapTest from './Heatmap.test';
+import reminderPlanTest from './ReminderPlan.test';
 
 export default function testsuite() {
   localUnitTest();
@@ -16,4 +18,6 @@ export default function testsuite() {
   syncPolicyTest();
   atCoderMapperTest();
   cpcfinderMapperTest();
+  heatmapTest();
+  reminderPlanTest();
 }

@@ -5,11 +5,13 @@ import { SeedData } from '../data/SeedData';
 import { DatabaseHelper } from '../data/db/DatabaseHelper';
 import { SyncOutcome, SyncService } from '../data/SyncService';
 import { ContestFeedService } from '../data/ContestFeedService';
+import { NotificationService } from '../data/NotificationService';
 import { CheckInResult, CheckInService } from '../domain/CheckInService';
 import { DateUtil } from '../utils/DateUtil';
 import { LinkService } from '../utils/LinkService';
+import { Heatmap } from '../utils/Heatmap';
 import {
-  BadgeItem, ChallengeCardData, CollectionCard, ContestItem, DifficultyRow, LeaderRow, Problem,
+  BadgeItem, ChallengeCardData, CollectionCard, ContestItem, DailyAcCount, DifficultyRow, LeaderRow, Problem,
   SettingRow, TargetCardData, TodaySnapshot, UpsolveTask, WeekCell, WeekStripDay
 } from '../model/Entities';
 import { CheckInStatus, TabIndex } from '../model/Enums';
@@ -46,7 +48,7 @@ struct Index {
   private problems: Problem[] = SeedData.matrixProblems();
   private task: UpsolveTask = SeedData.upsolve();
   private weekDays: WeekStripDay[] = SeedData.weekStrip();
-  private heatmap: number[] = SeedData.heatmap();
+  @Local heatmap: number[] = SeedData.heatmap();
   private difficultyRows: DifficultyRow[] = SeedData.difficultyRows();
   private badges: BadgeItem[] = SeedData.badges();
   private leaders: LeaderRow[] = SeedData.leaderboard();
@@ -103,10 +105,66 @@ struct Index {
       this.acHandle = await SyncService.loadAtCoderHandle();
       this.lastSyncText = await SyncService.loadLastSync();
       this.refreshSettingsSubtitle();
+      await this.loadHeatmap();
       await this.loadContestFeed();
     } catch (err) {
       console.error(`Database bootstrap failed: ${JSON.stringify(err)}`);
     }
+  }
+
+  private async loadHeatmap(): Promise<void> {
+    try {
+      const total: number = await DatabaseHelper.totalSubmissions();
+      if (total <= 0) {
+        return;
+      }
+      const start: Date = Heatmap.gridStart(new Date());
+      const counts: DailyAcCount[] = await DatabaseHelper.loadDailyCounts(
+        DateUtil.dateKey(start), DateUtil.todayKey()
+      );
+      const levels: number[] = Heatmap.buildLevels(start, counts);
+      let active: number = 0;
+      for (const level of levels) {
+        if (level > 0) {
+          active = active + 1;
+        }
+      }
+      if (active > 0) {
+        this.heatmap = levels;
+      }
+    } catch (err) {
+      console.error(`Heatmap build failed: ${JSON.stringify(err)}`);
+    }
+  }
+
+  private async toggleReminder(enabled: boolean): Promise<void> {
+    const context: common.UIAbilityContext = getContext(this) as common.UIAbilityContext;
+    if (enabled) {
+      const remaining: number = Math.max(0, this.snapshot.dailyTarget - this.snapshot.targetProgress);
+      const ok: boolean = await NotificationService.enableDaily(context, remaining);
+      this.updateReminderSetting(ok);
+      this.showToast(ok ? '已开启每晚 21:30 提醒' : '通知权限未授予，请在系统设置中开启');
+    } else {
+      await NotificationService.disableDaily();
+      this.updateReminderSetting(false);
+      this.showToast('已关闭每日提醒');
+    }
+  }
+
+  private updateReminderSetting(enabled: boolean): void {
+    const next: SettingRow[] = [];
+    for (const row of this.settings) {
+      if (row.id === 's2') {
+        const updated: SettingRow = {
+          id: row.id, title: row.title, subtitle: row.subtitle,
+          glyph: row.glyph, kind: row.kind, enabled: enabled
+        };
+        next.push(updated);
+      } else {
+        next.push(row);
+      }
+    }
+    this.settings = next;
   }
 
   private async loadContestFeed(): Promise<void> {
@@ -205,6 +263,7 @@ struct Index {
       };
       this.snapshot = next;
       this.persistCheckIn();
+      await this.loadHeatmap();
     }
   }
 
@@ -550,6 +609,9 @@ struct Index {
                 this.bindPlatform = this.cfHandle.length === 0 ? 'CF' : (this.acHandle.length === 0 ? 'AC' : 'CF');
                 this.handleDraft = this.bindPlatform === 'CF' ? this.cfHandle : this.acHandle;
                 this.showBind = true;
+              },
+              onReminderToggle: (enabled: boolean) => {
+                this.toggleReminder(enabled);
               }
             })
           }

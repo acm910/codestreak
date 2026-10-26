@@ -29,6 +29,8 @@ export struct StatsView {
   @Param settings: SettingRow[] = [];
   @Event onBindPlatform: () => void = () => {
   };
+  @Event onReminderToggle: (enabled: boolean) => void = () => {
+  };
 
   @Local leaderTab: number = 0;
   @Local hint: string = '';
@@ -185,7 +187,11 @@ export struct StatsView {
             CsSettingsRow({
               row: row,
               onToggle: (id: string, enabled: boolean) => {
-                this.hint = enabled ? '已开启每日 21:30 提醒' : '已关闭每日提醒';
+                if (id === 's2') {
+                  this.onReminderToggle(enabled);
+                } else {
+                  this.hint = enabled ? '已开启' : '已关闭';
+                }
               },
               onTap: (id: string) => {
                 if (id === 's1') {
