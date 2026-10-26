@@ -5,6 +5,7 @@ import { ContestStatus, PlatformCode } from '../model/Enums';
 import { DateUtil } from '../utils/DateUtil';
 import { CpcfinderAdapter } from './remote/CpcfinderAdapter';
 import { CpcfinderMapper } from './remote/CpcfinderMapper';
+import { PlatformContestAdapter } from './remote/PlatformContestAdapter';
 
 /**
  * ICPC / CCPC 赛程源（数据来自 https://cpcfinder.com/contest 的公开 JSON）
@@ -22,6 +23,7 @@ export class ContestFeedService {
     const result: ContestItem[] = [];
     for (const item of upcoming) {
       const isIcpc: boolean = item.name.indexOf('ICPC') >= 0;
+      const startEpoch: number = Math.floor(DateUtil.parseKey(item.date).getTime() / 1000);
       const item2: ContestItem = {
         id: item.id,
         platform: isIcpc ? PlatformCode.LC : PlatformCode.AC,
@@ -37,10 +39,30 @@ export class ContestFeedService {
         secondaryText: '',
         pulsing: false,
         url: item.boardUrl.length > 0 ? item.boardUrl : ContestFeedService.FALLBACK_URL,
-        isCollegiate: true
+        isCollegiate: true,
+        sortEpoch: startEpoch
       };
       result.push(item2);
     }
     return result;
+  }
+
+  /** 合并高校赛（CPC Finder）与平台赛程（CF / AtCoder），按开始时间升序 */
+  static async loadAll(limitPerSource: number): Promise<ContestItem[]> {
+    const merged: ContestItem[] = [];
+    const collegiate: ContestItem[] = await ContestFeedService.loadUpcoming(limitPerSource);
+    for (const item of collegiate) {
+      merged.push(item);
+    }
+    const cf: ContestItem[] = await PlatformContestAdapter.fetchCodeforces(3);
+    for (const item of cf) {
+      merged.push(item);
+    }
+    const ac: ContestItem[] = await PlatformContestAdapter.fetchAtCoder(3);
+    for (const item of ac) {
+      merged.push(item);
+    }
+    merged.sort((a: ContestItem, b: ContestItem) => a.sortEpoch - b.sortEpoch);
+    return merged;
   }
 }

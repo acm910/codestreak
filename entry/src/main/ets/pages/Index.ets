@@ -212,20 +212,8 @@ struct Index {
 
   private async loadContestFeed(): Promise<void> {
     try {
-      const feed: ContestItem[] = await ContestFeedService.loadUpcoming(4);
-      if (feed.length === 0) {
-        return;
-      }
-      const merged: ContestItem[] = [];
-      for (const item of feed) {
-        merged.push(item);
-      }
-      for (const item of SeedData.contests()) {
-        if (!item.isCollegiate) {
-          merged.push(item);
-        }
-      }
-      this.contests = merged;
+      const feed: ContestItem[] = await ContestFeedService.loadAll(4);
+      this.contests = feed;
     } catch (err) {
       console.error(`Contest feed failed: ${JSON.stringify(err)}`);
     }

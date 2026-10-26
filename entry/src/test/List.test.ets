@@ -12,6 +12,7 @@ import luoguMapperTest from './LuoguMapper.test';
 import retryQueueTest from './RetryQueue.test';
 import leetCodeMapperTest from './LeetCodeMapper.test';
 import statsServiceTest from './StatsService.test';
+import platformContestMapperTest from './PlatformContestMapper.test';
 
 export default function testsuite() {
   localUnitTest();
@@ -28,4 +29,5 @@ export default function testsuite() {
   retryQueueTest();
   leetCodeMapperTest();
   statsServiceTest();
+  platformContestMapperTest();
 }

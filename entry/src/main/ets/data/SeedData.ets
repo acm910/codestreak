@@ -1,5 +1,5 @@
 import { CsColor } from '../constants/DesignTokens';
-import { CheckInStatus, ContestStatus, PlatformCode, SolveStatus } from '../model/Enums';
+import { CheckInStatus, PlatformCode, SolveStatus } from '../model/Enums';
 import { DateUtil } from '../utils/DateUtil';
 import {
   BadgeItem,

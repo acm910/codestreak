@@ -57,6 +57,8 @@ export interface ContestItem {
   url: string;
   /** 是否高校赛（ICPC/CCPC），用于筛选分组 */
   isCollegiate: boolean;
+  /** 排序用开始时间（epoch 秒），0 表示未知 */
+  sortEpoch: number;
 }
 
 /** 补题题目行（C-30） */

@@ -15,7 +15,7 @@ const EMPTY_TARGET: TargetCardData = { problem: EMPTY_PROBLEM, rewardText: '' };
 const EMPTY_CONTEST: ContestItem = {
   id: '', platform: PlatformCode.LC, platformLabel: '', name: '', timeText: '', durationText: '',
   status: ContestStatus.UPCOMING, statusText: '', accent: '', footerText: '', actionText: '',
-  secondaryText: '', pulsing: false, url: '', isCollegiate: false
+  secondaryText: '', pulsing: false, url: '', isCollegiate: false, sortEpoch: 0
 };
 const EMPTY_TASK: UpsolveTask = { contestName: '', resultText: '', percent: 0, problems: [] };
 const EMPTY_SETTING: SettingRow = {
