@@ -40,7 +40,7 @@ $hvigor = 'D:\develop\harmony\DevEco Studio\tools\hvigor\bin\hvigorw.js'
 | 全局框架 | ✅ | AppBar + 四 Tab（保留各页状态）、Toast、打卡庆祝遮罩 |
 | RDB 持久化 | ✅ | `data/db`（v2）：7 张表（user / check_in / problem / contest / app_setting / submission / sync_job）、首启种子灌库、打卡与提交落库、当日 AC 聚合 |
 | P-02 题单矩阵 | ✅ | 求职/竞赛双赛道分离、题单卡跳官方页、搜索/难度/平台多选（实心选中态）、题目行跳转 |
-| 单元测试 | ✅ | hypium 本地单测 **89 条全通过**（难度/日期/打卡/映射/同步策略/热力图/提醒/重试/统计/赛程/赛道/题单进度），行覆盖 87.67%、分支 73.27% |
+| 单元测试 | ✅ | hypium 本地单测 **90 条全通过**（难度/日期/打卡/映射/同步策略/热力图/提醒/重试/统计/赛程/赛道/题单进度），行覆盖 87.71%、分支 73.44% |
 | 平台同步 | 🟡 | **五平台（CF / AtCoder / 洛谷 / LeetCode / 牛客）**：节流 → HTTP/GraphQL/HTML → 映射 → 幂等落库；登录态经内置 WebView 获取 |
 | 登录授权 | ✅ | 内置 [WebLogin](entry/src/main/ets/pages/WebLogin.ets)：洛谷 / 牛客 / LC 登录后抓取 Cookie，再执行导入 |
 | 赛事与外链 | ✅ | ICPC/CCPC（[CPC Finder](https://cpcfinder.com/contest)）+ Codeforces + AtCoder 真实赛程；题目与赛事按钮跳转系统浏览器 |
