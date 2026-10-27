@@ -7,6 +7,7 @@ const CF_RESPONSE: string = `{
   "result": [
     { "id": 3, "name": "Codeforces Round 999 (Div. 2)", "startTimeSeconds": 2000, "durationSeconds": 7200, "phase": "BEFORE" },
     { "id": 2, "name": "Codeforces Round 998 (Div. 3)", "startTimeSeconds": 1500, "durationSeconds": 7200, "phase": "BEFORE" },
+    { "id": 4, "name": "ICPC Online Challenge", "startTimeSeconds": 1800, "durationSeconds": 1209600, "phase": "BEFORE" },
     { "id": 1, "name": "Codeforces Round 997", "startTimeSeconds": 900, "durationSeconds": 7200, "phase": "FINISHED" }
   ]
 }`;
@@ -32,6 +33,13 @@ export default function platformContestMapperTest() {
       const items: ContestItem[] = PlatformContestMapper.mapCodeforces(CF_RESPONSE, 1000, 1);
       expect(items.length).assertEqual(1);
       expect(items[0].id).assertEqual('cf-2');
+    });
+
+    it('codeforces_skips_multi_day_events', 0, () => {
+      const items: ContestItem[] = PlatformContestMapper.mapCodeforces(CF_RESPONSE, 1000, 5);
+      expect(items.length).assertEqual(2);
+      expect(items[0].id).assertEqual('cf-2');
+      expect(items[1].id).assertEqual('cf-3');
     });
 
     it('atcoder_maps_and_sorts', 0, () => {

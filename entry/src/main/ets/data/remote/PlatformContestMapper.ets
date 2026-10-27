@@ -61,6 +61,10 @@ export class PlatformContestMapper {
       if (item.startTimeSeconds <= nowSecond) {
         continue;
       }
+      // 过滤超长赛程（如 14 天的 ICPC Online Challenge），避免日历出现异常时长
+      if (item.durationSeconds !== undefined && item.durationSeconds > 86400) {
+        continue;
+      }
       upcoming.push(item);
     }
     upcoming.sort((a: CfContest, b: CfContest) => (a.startTimeSeconds as number) - (b.startTimeSeconds as number));

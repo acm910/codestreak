@@ -46,7 +46,7 @@ struct Index {
   @Local handleDraft: string = '';
   @Local bindPlatform: string = 'CF';
   @Local lastSyncText: string = '';
-  @Local platformLabels: string[] = ['CF 未绑定', 'AtCoder 未绑定', '洛谷 未绑定', '牛客 未绑定', 'LC 未绑定'];
+  @Local platformLabels: string[] = ['CF 未绑', 'AC 未绑', '洛谷 未绑', '牛客 未绑', 'LC 未绑'];
 
   private target: TargetCardData = SeedData.targetCard();
   private challenge: ChallengeCardData = SeedData.challengeCard();
@@ -127,11 +127,11 @@ struct Index {
       this.ncUid = await SyncService.loadNowCoderUid();
       this.lcHandle = await SyncService.loadLeetCodeHandle();
       const labels: string[] = [
-        this.cfHandle.length > 0 ? 'CF 已绑定' : 'CF 未绑定',
-        this.acHandle.length > 0 ? 'AtCoder 已绑定' : 'AtCoder 未绑定',
-        this.lgUid.length > 0 ? '洛谷 已绑定' : '洛谷 未绑定',
-        this.ncUid.length > 0 ? '牛客 已绑定' : '牛客 未绑定',
-        this.lcHandle.length > 0 ? 'LC 已绑定' : 'LC 未绑定'
+        this.cfHandle.length > 0 ? 'CF 已绑' : 'CF 未绑',
+        this.acHandle.length > 0 ? 'AC 已绑' : 'AC 未绑',
+        this.lgUid.length > 0 ? '洛谷 已绑' : '洛谷 未绑',
+        this.ncUid.length > 0 ? '牛客 已绑' : '牛客 未绑',
+        this.lcHandle.length > 0 ? 'LC 已绑' : 'LC 未绑'
       ];
       this.platformLabels = labels;
       const retried: string = await SyncService.retryIfDue();
@@ -477,7 +477,7 @@ struct Index {
         .fontSize(CsFont.H3)
         .fontWeight(FontWeight.Bold)
         .fontColor(CsColor.TEXT_PRIMARY)
-      Text('记录已同步至云端矩阵。今日完成度升级，坚持就是极客的力量！')
+      Text('记录已保存至本地矩阵。今日完成度升级，坚持就是极客的力量！')
         .fontSize(CsFont.BODY_SM)
         .fontColor(CsColor.TEXT_SECONDARY)
         .textAlign(TextAlign.Center)
@@ -490,8 +490,8 @@ struct Index {
         }
         .alignItems(HorizontalAlign.Start)
         Column({ space: 2 }) {
-          Text('获得积分').fontSize(CsFont.LABEL_SM).fontColor(CsColor.TEXT_TERTIARY)
-          Text('+25 EXP').fontSize(CsFont.LABEL_LG)
+          Text('今日进度').fontSize(CsFont.LABEL_SM).fontColor(CsColor.TEXT_TERTIARY)
+          Text(`${this.snapshot.targetProgress}/${this.snapshot.dailyTarget}`).fontSize(CsFont.LABEL_LG)
             .fontWeight(FontWeight.Bold).fontColor(CsColor.SECONDARY)
         }
         .alignItems(HorizontalAlign.Start)

@@ -167,16 +167,21 @@ export struct CsStreakHero {
       } else {
         Column({ space: 6 }) {
           Row() {
-            Text('距离解锁【30天徽章】还差 2 天')
+            Text(this.streak >= 30 ? '已解锁【30天徽章】'
+              : `距离解锁【30天徽章】还差 ${30 - this.streak} 天`)
               .fontSize(CsFont.BODY_SM)
               .fontColor(CsColor.TEXT_SECONDARY)
-            Text('93%')
+            Text(`${Math.min(100, Math.round(this.streak * 100 / 30))}%`)
               .fontSize(CsFont.LABEL_SM)
               .fontColor(CsColor.SECONDARY)
           }
           .width('100%')
           .justifyContent(FlexAlign.SpaceBetween)
-          CsProgressBar({ value: 93.3, color: CsColor.SECONDARY, barHeight: 6 })
+          CsProgressBar({
+            value: Math.min(100, this.streak * 100 / 30),
+            color: CsColor.SECONDARY,
+            barHeight: 6
+          })
         }
       }
     }
