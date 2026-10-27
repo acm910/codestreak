@@ -116,6 +116,20 @@ $env:DEVECO_SDK_HOME = 'D:\develop\harmony\DevEco Studio\sdk'
 - 版本：SemVer + 注释标签 `vX.Y.Z`，`versionCode = 主*1000000 + 次*1000 + 修订`；
 - 每次任务完成必须同步更新 [实现进度与代码映射](docs/04-技术设计/08-实现进度与代码映射.md)。
 
+## AI Skill（开发流程复用）
+
+把本项目的交付流程沉淀为可复用 skill：[`skills/harmony-arkts-delivery`](skills/harmony-arkts-delivery/SKILL.md)。
+
+- 内容：文档先行、真实数据、构建/单测、HDC 真机验证与截图、发布准备（分层图标/隐私/自测/RC 标签）、MD+Word 报告生成；
+- 脚本：`harmony-build.ps1`（自动定位 SDK 并跑 hvigor）、`hdc-verify.ps1`（截图/点击/重启）；
+- 安装（DSH + Claude Code，项目级与用户级）：
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/install-skills.ps1
+```
+
+安装副本写入 `.dsh/skills`、`.claude/skills`、`~/.dsh/skills`、`~/.claude/skills`，已被 `.gitignore` 忽略；修改请只改 `skills/` 源目录，重启 DSH / Claude Code 生效。
+
 ## 文档
 
 从 [`docs/README.md`](docs/README.md) 进入文档中心：产品设计、设计规范、页面设计、技术设计、项目规范、附录裁决、测试与质量、实训报告共 36 份分册。

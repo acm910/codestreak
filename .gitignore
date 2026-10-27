@@ -35,3 +35,7 @@ _draft/
 
 # 真机截图 / GIF 等演示产物（体积大，不入库）
 /artifacts
+
+# 本地安装的 skill 副本（唯一源在 skills/）
+/.dsh/skills
+/.claude/skills
