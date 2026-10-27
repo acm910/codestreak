@@ -39,8 +39,8 @@ $hvigor = 'D:\develop\harmony\DevEco Studio\tools\hvigor\bin\hvigorw.js'
 | P-04 统计榜单 | ✅ | 用户卡、真实热力图/难度分布/徽章；好友榜无数据源时为空态 |
 | 全局框架 | ✅ | AppBar + 四 Tab（保留各页状态）、Toast、打卡庆祝遮罩 |
 | RDB 持久化 | ✅ | `data/db`（v2）：7 张表（user / check_in / problem / contest / app_setting / submission / sync_job）、首启种子灌库、打卡与提交落库、当日 AC 聚合 |
-| P-02 题单矩阵 | ✅ | 求职/竞赛双赛道完全分离（题单与题目各自过滤）、搜索语法、难度/平台多选（实心选中态）、题目行跳转 |
-| 单元测试 | ✅ | hypium 本地单测 **86 条全通过**（难度/日期/打卡/映射/同步策略/热力图/提醒/重试/统计/赛程/赛道），行覆盖 87.39%、分支 72.93% |
+| P-02 题单矩阵 | ✅ | 求职/竞赛双赛道分离、题单卡跳官方页、搜索/难度/平台多选（实心选中态）、题目行跳转 |
+| 单元测试 | ✅ | hypium 本地单测 **89 条全通过**（难度/日期/打卡/映射/同步策略/热力图/提醒/重试/统计/赛程/赛道/题单进度），行覆盖 87.67%、分支 73.27% |
 | 平台同步 | 🟡 | **五平台（CF / AtCoder / 洛谷 / LeetCode / 牛客）**：节流 → HTTP/GraphQL/HTML → 映射 → 幂等落库；登录态经内置 WebView 获取 |
 | 登录授权 | ✅ | 内置 [WebLogin](entry/src/main/ets/pages/WebLogin.ets)：洛谷 / 牛客 / LC 登录后抓取 Cookie，再执行导入 |
 | 赛事与外链 | ✅ | ICPC/CCPC（[CPC Finder](https://cpcfinder.com/contest)）+ Codeforces + AtCoder 真实赛程；题目与赛事按钮跳转系统浏览器 |
@@ -59,7 +59,7 @@ entry/src/main/ets/
 │   ├── Common.ets         C-01 AppBar、C-03 区块标题、C-08 指标块、C-13/C-14 徽标、C-15 进度条、空态
 │   ├── Cards.ets          C-04 连续打卡卡（hero/hud）、C-06/C-07 目标卡、C-26 倒计时、C-27 补题率、C-29 比赛卡、C-30 补题卡、C-31 用户卡、C-36 设置行
 │   └── Visuals.ets        C-28 周条、C-32 热力图、C-33 难度分布、C-34 徽章、C-35 排行榜、C-40 骨架、今日战报
-├── domain/                CheckInService、SyncPolicy、ReminderPlan、RetryQueue、StatsService、TrackFilter
+├── domain/                CheckInService、SyncPolicy、ReminderPlan、RetryQueue、StatsService、TrackFilter、CollectionProgress
 ├── model/                 Enums、Entities、SyncModels、ContestFeed
 ├── data/
 │   ├── SeedData.ets       自洽数据集 v1
@@ -96,7 +96,7 @@ $env:DEVECO_SDK_HOME = 'D:\develop\harmony\DevEco Studio\sdk'
 5. **重试仅在启动时消费**：失败会落一条重试记录并按 1/5/15 分钟退避，应用不重启则不会自动重试；无后台常驻调度。
 6. **AtCoder 难度为估算值**：按题位字母映射（A→★1 … G→★5），未接 `problem-models.json`。
 7. **赛事覆盖 ICPC/CCPC + CF + AtCoder**：LC/洛谷赛程需登录态，对应筛选为空态；不再展示示例赛事。
-8. **好友榜 / 题单订阅 / 补题为空态**：无对应数据源，页面显示「暂无」；接入后端后再展示真实数据。
+8. **好友榜 / 题单订阅 / 补题为空态**：无对应数据源，页面显示「暂无」；题单卡可跳官方页，但没有成员清单，暂不显示完成度（避免假进度）。
 9. **外链跳转依赖系统浏览器**：题目/赛事按钮通过 `viewData` 打开链接，设备无浏览器或链接失效时会提示失败。
 10. **提醒依赖系统授权**：首次开启会弹通知授权；拒绝后开关回退并提示，未做独立权限引导页。
 11. **图标为字符占位**：待替换为 `SymbolGlyph` 或字体图标（设计规范见 `docs/02-设计规范/05`）。
