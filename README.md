@@ -4,6 +4,10 @@
 
 本仓库按 [`docs/`](docs/README.md) 中的设计文档实现。当前处于 **v1.0.0-rc.1（发布前自测完成、待签名提审）**：四页闭环、RDB 持久化、五平台同步、真实统计与赛程均已落地，90 条单测全绿；发布门禁与阻塞项见 [发布前自测报告](docs/07-测试与质量/04-发布前自测报告.md)。
 
+<img src="docs/08-实训报告/assets/screenshot-home.jpeg" alt="CodeStreak 首页" width="320" />
+
+**CodeStreak** 把跨平台刷题变成一条不断裂的连胜：今日打卡、题单矩阵（求职 / 竞赛双赛道）、比赛日历（ICPC/CCPC + CF + AtCoder 真实赛程）、统计榜单，数据本地优先，支持 Codeforces / AtCoder / 洛谷 / 牛客 / LeetCode 同步。
+
 ## 快速开始
 
 ### 方式一：DevEco Studio（推荐）
@@ -135,3 +139,7 @@ powershell -ExecutionPolicy Bypass -File scripts/install-skills.ps1
 从 [`docs/README.md`](docs/README.md) 进入文档中心：产品设计、设计规范、页面设计、技术设计、项目规范、附录裁决、测试与质量、实训报告共 36 份分册。
 
 实训报告：[Markdown](docs/08-实训报告/CodeStreak-鸿蒙实训个人报告.md) · [Word](docs/08-实训报告/CodeStreak-鸿蒙实训个人报告.docx)（提交前填写班级/姓名/学号并重命名）。
+
+## License
+
+[MIT](LICENSE) © 2026 CodeStreak contributors. 第三方平台数据归各平台所有，本项目仅做本地展示与个人学习使用。
