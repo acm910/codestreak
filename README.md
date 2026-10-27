@@ -2,7 +2,7 @@
 
 > 把刷题变成不可断的连胜。跨平台刷题打卡 + 赛训一体化 HarmonyOS 应用。
 
-本仓库按 [`docs/`](docs/README.md) 中的设计文档实现。当前处于 **v1.0 开发中（M2 四页闭环）**：四个一级页与核心交互已完成并通过 ArkTS 编译，数据仍来自本地种子集，尚未接入 RDB 与真实同步。
+本仓库按 [`docs/`](docs/README.md) 中的设计文档实现。当前处于 **v1.0.0-rc.1（发布前自测完成、待签名提审）**：四页闭环、RDB 持久化、五平台同步、真实统计与赛程均已落地，90 条单测全绿；发布门禁与阻塞项见 [发布前自测报告](docs/07-测试与质量/04-发布前自测报告.md)。
 
 ## 快速开始
 
@@ -23,7 +23,7 @@ $hvigor = 'D:\develop\harmony\DevEco Studio\tools\hvigor\bin\hvigorw.js'
 & $node $hvigor --no-daemon assembleHap -p product=default -p buildMode=debug
 ```
 
-产物：`entry/build/default/outputs/default/entry-default-unsigned.hap`（约 0.65 MB，未签名）。
+产物：`entry/build/default/outputs/default/entry-default-unsigned.hap`（约 1.23 MB，未签名）。
 
 > Windows 上若构建报 `EPERM: .hvigor\outputs\build-logs\build.log`，说明当前终端身份对该目录无写权限，需在可写环境（DevEco 终端或提权终端）执行。
 
@@ -43,6 +43,8 @@ $hvigor = 'D:\develop\harmony\DevEco Studio\tools\hvigor\bin\hvigorw.js'
 | 单元测试 | ✅ | hypium 本地单测 **90 条全通过**（难度/日期/打卡/映射/同步策略/热力图/提醒/重试/统计/赛程/赛道/题单进度），行覆盖 87.71%、分支 73.44% |
 | 平台同步 | 🟡 | **五平台（CF / AtCoder / 洛谷 / LeetCode / 牛客）**：节流 → HTTP/GraphQL/HTML → 映射 → 幂等落库；登录态经内置 WebView 获取 |
 | 登录授权 | ✅ | 内置 [WebLogin](entry/src/main/ets/pages/WebLogin.ets)：洛谷 / 牛客 / LC 登录后抓取 Cookie，再执行导入 |
+| 应用图标 | ✅ | 自绘分层图标（深色网格底 + 琥珀火焰 + 勾 + 翡翠光点）与启动图标，已打入 HAP |
+| 发布准备 | 🟡 | 隐私与权限说明、发布前自测报告、商店截图与流程 GIF 已完成；**签名证书与主体信息待补** |
 | 赛事与外链 | ✅ | ICPC/CCPC（[CPC Finder](https://cpcfinder.com/contest)）+ Codeforces + AtCoder 真实赛程；题目与赛事按钮跳转系统浏览器 |
 | 数据可视化 | ✅ | 热力图、难度分布、连续天数、总 AC 全部按本地记录计算；无数据显示 0 或空态 |
 | 通知提醒 | 🟡 | 每日 21:30 通过 `reminderAgentManager` 发布代理提醒，设置开关联动；待真机验证送达 |
@@ -99,9 +101,11 @@ $env:DEVECO_SDK_HOME = 'D:\develop\harmony\DevEco Studio\sdk'
 8. **好友榜 / 题单订阅 / 补题为空态**：无对应数据源，页面显示「暂无」；题单卡可跳官方页，但没有成员清单，暂不显示完成度（避免假进度）。
 9. **外链跳转依赖系统浏览器**：题目/赛事按钮通过 `viewData` 打开链接，设备无浏览器或链接失效时会提示失败。
 10. **提醒依赖系统授权**：首次开启会弹通知授权；拒绝后开关回退并提示，未做独立权限引导页。
-11. **图标为字符占位**：待替换为 `SymbolGlyph` 或字体图标（设计规范见 `docs/02-设计规范/05`）。
-12. **真机回归未完成**：编译、打包、83 条单测、CF 同步与首次启动均已通过，但 WebView 登录、洛谷/牛客/LC 导入、赛程拉取与提醒送达尚未按用例逐条回归（对照 `docs/07-测试与质量/02`）。
-13. **签名缺失**：命令行产物为 unsigned HAP，安装前需配置签名。
+11. **应用图标为工程首版**：火焰 + 勾 + 网格底，待品牌视觉确认后可替换 `background/foreground.png`。
+12. **应用内图标仍为字符占位**（✓ ★ 🔥 →），待替换 `SymbolGlyph` 或字体图标。
+13. **真机回归范围有限**：90 条单测、构建、首页/题单/赛程/统计走查与重启持久化已通过；WebView 登录、AtCoder/洛谷/LC/牛客导入、提醒送达尚未逐条回归（对照 [自测报告](docs/07-测试与质量/04-发布前自测报告.md)）。
+14. **签名与主体信息缺失**：无签名证书、隐私声明主体/邮箱为占位，暂不能提审。
+15. **隐私声明主体待填**：见 [隐私与权限说明](docs/06-附录/02-隐私与权限说明.md) §7。
 
 ## 版本管理
 
@@ -114,4 +118,4 @@ $env:DEVECO_SDK_HOME = 'D:\develop\harmony\DevEco Studio\sdk'
 
 ## 文档
 
-从 [`docs/README.md`](docs/README.md) 进入文档中心：产品设计、设计规范、页面设计、技术设计、项目规范、附录裁决、测试与质量共 33 份分册。
+从 [`docs/README.md`](docs/README.md) 进入文档中心：产品设计、设计规范、页面设计、技术设计、项目规范、附录裁决、测试与质量共 35 份分册。
