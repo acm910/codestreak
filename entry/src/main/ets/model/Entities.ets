@@ -35,6 +35,10 @@ export interface CollectionCard {
   percent: number;
   /** 所属赛道 */
   track: TrackType;
+  /** 题单官方入口 */
+  url: string;
+  /** 成员题号（用于真实完成度；空数组表示暂无成员清单） */
+  problemKeys: string[];
 }
 
 /** 比赛（C-29） */

@@ -8,6 +8,7 @@ import { SyncOutcome, SyncService } from '../data/SyncService';
 import { ContestFeedService } from '../data/ContestFeedService';
 import { NotificationService } from '../data/NotificationService';
 import { CheckInResult, CheckInService } from '../domain/CheckInService';
+import { CollectionProgress } from '../domain/CollectionProgress';
 import { StatsService, StreakResult } from '../domain/StatsService';
 import { DateUtil } from '../utils/DateUtil';
 import { LinkService } from '../utils/LinkService';
@@ -50,7 +51,7 @@ struct Index {
   private target: TargetCardData = SeedData.targetCard();
   private challenge: ChallengeCardData = SeedData.challengeCard();
   @Local cells: WeekCell[] = SeedData.weekCells();
-  private collections: CollectionCard[] = SeedData.collections();
+  @Local collections: CollectionCard[] = SeedData.collections();
   @Local problems: Problem[] = SeedData.matrixProblems();
   private task: UpsolveTask = SeedData.upsolve();
   @Local weekDays: WeekStripDay[] = SeedData.weekStrip();
@@ -148,9 +149,10 @@ struct Index {
     }
   }
 
-  /** 题单矩阵状态：以本地 AC 记录为准，无记录保持待做 */
+  /** 题单矩阵状态与题单完成度：以本地 AC 记录为准 */
   private async loadMatrixStatuses(): Promise<void> {
     const solvedKeys: string[] = await DatabaseHelper.loadSolvedKeys();
+    this.collections = CollectionProgress.apply(this.collections, solvedKeys);
     if (solvedKeys.length === 0) {
       return;
     }
@@ -721,6 +723,9 @@ struct Index {
               collections: this.collections,
               problems: this.problems,
               onOpenProblem: (url: string) => {
+                this.openUrl(url);
+              },
+              onOpenCollection: (url: string) => {
                 this.openUrl(url);
               },
               onComingSoon: (label: string) => {

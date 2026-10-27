@@ -12,6 +12,8 @@ export struct MatrixView {
   @Param problems: Problem[] = [];
   @Event onOpenProblem: (url: string) => void = () => {
   };
+  @Event onOpenCollection: (url: string) => void = () => {
+  };
   @Event onComingSoon: (label: string) => void = () => {
   };
 
@@ -337,9 +339,9 @@ export struct MatrixView {
           .padding({ left: 6, right: 6, top: 2, bottom: 2 })
           .borderRadius(CsRadius.FULL)
           .backgroundColor(withAlpha(CsColor.PRIMARY_CONTAINER, 0.2))
-        Text(`${item.percent}% 已攻克`)
+        Text(item.total > 0 ? `${item.percent}% 已攻克` : '查看题单')
           .fontSize(CsFont.LABEL_SM)
-          .fontColor(CsColor.SECONDARY)
+          .fontColor(item.total > 0 ? CsColor.SECONDARY : CsColor.TEXT_TERTIARY)
       }
       .width('100%')
       .justifyContent(FlexAlign.SpaceBetween)
@@ -358,25 +360,41 @@ export struct MatrixView {
         .textOverflow({ overflow: TextOverflow.Ellipsis })
         .width('100%')
 
-      Column({ space: 4 }) {
-        Row() {
-          Text(`完成度 ${item.done}/${item.total}`)
-            .fontSize(CsFont.LABEL_SM)
-            .fontColor(CsColor.TEXT_TERTIARY)
-          Text(`${item.percent}%`)
-            .fontSize(CsFont.LABEL_SM)
-            .fontColor(CsColor.TEXT_TERTIARY)
+      if (item.total > 0) {
+        Column({ space: 4 }) {
+          Row() {
+            Text(`完成度 ${item.done}/${item.total}`)
+              .fontSize(CsFont.LABEL_SM)
+              .fontColor(CsColor.TEXT_TERTIARY)
+            Text(`${item.percent}%`)
+              .fontSize(CsFont.LABEL_SM)
+              .fontColor(CsColor.TEXT_TERTIARY)
+          }
+          .width('100%')
+          .justifyContent(FlexAlign.SpaceBetween)
+          CsProgressBar({ value: item.percent, color: CsColor.SECONDARY, barHeight: 4 })
         }
         .width('100%')
-        .justifyContent(FlexAlign.SpaceBetween)
-        CsProgressBar({ value: item.percent, color: CsColor.SECONDARY, barHeight: 4 })
+      } else {
+        Row({ space: 4 }) {
+          Text('进入题单')
+            .fontSize(CsFont.LABEL_SM)
+            .fontColor(CsColor.PRIMARY)
+          Text('→')
+            .fontSize(CsFont.LABEL_SM)
+            .fontColor(CsColor.PRIMARY)
+        }
+        .width('100%')
+        .justifyContent(FlexAlign.End)
       }
-      .width('100%')
     }
     .width(270)
     .padding(CsSpace.MD)
     .borderRadius(CsRadius.XL)
     .backgroundColor(CsColor.SURFACE_LOW)
+    .onClick(() => {
+      this.onOpenCollection(item.url);
+    })
   }
 
   @Builder

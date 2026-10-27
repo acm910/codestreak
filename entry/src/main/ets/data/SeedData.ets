@@ -92,23 +92,26 @@ export class SeedData {
     return cells;
   }
 
-  /** 官方精选题单目录（完成度从 0 起算，订阅进度尚未接入） */
+  /** 官方精选题单目录：有成员清单才计算完成度，否则只给入口 */
   static collections(): CollectionCard[] {
     const list: CollectionCard[] = [
       {
         id: 'c1', tag: '高频面试', title: '代码随想录 · 核心 60 题',
         desc: '经典数组、动态规划及单调栈体系化通关路线。',
-        done: 0, total: 60, percent: 0, track: TrackType.INTERVIEW
+        done: 0, total: 0, percent: 0, track: TrackType.INTERVIEW,
+        url: 'https://programmercarl.com/', problemKeys: []
       },
       {
         id: 'c2', tag: '竞赛排位', title: 'CF 1200-1400 突破营',
         desc: '攻克 Div.3 C/D 与 Div.2 B/C 贪心与二分分水岭题目。',
-        done: 0, total: 45, percent: 0, track: TrackType.CONTEST
+        done: 0, total: 0, percent: 0, track: TrackType.CONTEST,
+        url: 'https://codeforces.com/problemset?order=BY_RATING_ASC', problemKeys: []
       },
       {
         id: 'c3', tag: '经典必刷', title: '剑指 Offer 经典必刷',
         desc: '国内大厂考察极高频的代码与数据结构模版题。',
-        done: 0, total: 75, percent: 0, track: TrackType.INTERVIEW
+        done: 0, total: 0, percent: 0, track: TrackType.INTERVIEW,
+        url: 'https://leetcode.cn/studyplan/coding-interviews/', problemKeys: []
       }
     ];
     return list;

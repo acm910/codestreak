@@ -15,6 +15,7 @@ import statsServiceTest from './StatsService.test';
 import platformContestMapperTest from './PlatformContestMapper.test';
 import nowCoderMapperTest from './NowCoderMapper.test';
 import trackFilterTest from './TrackFilter.test';
+import collectionProgressTest from './CollectionProgress.test';
 
 export default function testsuite() {
   localUnitTest();
@@ -34,4 +35,5 @@ export default function testsuite() {
   platformContestMapperTest();
   nowCoderMapperTest();
   trackFilterTest();
+  collectionProgressTest();
 }

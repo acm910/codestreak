@@ -14,7 +14,8 @@ function problem(id: string, track: TrackType): Problem {
 
 function collection(id: string, track: TrackType): CollectionCard {
   const item: CollectionCard = {
-    id: id, tag: '', title: id, desc: '', done: 0, total: 10, percent: 0, track: track
+    id: id, tag: '', title: id, desc: '', done: 0, total: 10, percent: 0, track: track,
+    url: '', problemKeys: []
   };
   return item;
 }
