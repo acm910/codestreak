@@ -118,4 +118,6 @@ $env:DEVECO_SDK_HOME = 'D:\develop\harmony\DevEco Studio\sdk'
 
 ## 文档
 
-从 [`docs/README.md`](docs/README.md) 进入文档中心：产品设计、设计规范、页面设计、技术设计、项目规范、附录裁决、测试与质量共 35 份分册。
+从 [`docs/README.md`](docs/README.md) 进入文档中心：产品设计、设计规范、页面设计、技术设计、项目规范、附录裁决、测试与质量、实训报告共 36 份分册。
+
+实训报告：[Markdown](docs/08-实训报告/CodeStreak-鸿蒙实训个人报告.md) · [Word](docs/08-实训报告/CodeStreak-鸿蒙实训个人报告.docx)（提交前填写班级/姓名/学号并重命名）。
