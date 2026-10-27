@@ -116,6 +116,7 @@ $env:DEVECO_SDK_HOME = 'D:\develop\harmony\DevEco Studio\sdk'
 仓库已按 [Git版本管理规范](docs/05-项目规范/05-Git版本管理规范.md) 纳管：
 
 - 分支：`main`（发布）/ `develop`（集成）/ `feature/*`、`fix/*`、`docs/*`、`chore/*`（短生命周期）；
+- 远端：[github.com/acm910/codestreak](https://github.com/acm910/codestreak)（公开；默认分支 `main`；SSH 走 443）；
 - 提交：Conventional Commits，`<type>(<scope>): <简述>`，一事一提交；
 - 版本：SemVer + 注释标签 `vX.Y.Z`，`versionCode = 主*1000000 + 次*1000 + 修订`；
 - 每次任务完成必须同步更新 [实现进度与代码映射](docs/04-技术设计/08-实现进度与代码映射.md)。
