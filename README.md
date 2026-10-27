@@ -141,7 +141,7 @@ powershell -ExecutionPolicy Bypass -File scripts/install-skills.ps1
 
 实训报告：[Markdown](docs/08-实训报告/CodeStreak-鸿蒙实训个人报告.md) · [Word](docs/08-实训报告/CodeStreak-鸿蒙实训个人报告.docx)（提交前填写班级/姓名/学号并重命名）。
 
-演示材料：[两页功能 PPT](docs/09-演示材料/CodeStreak-功能速览.pptx) · [简要介绍稿](docs/09-演示材料/CodeStreak-功能速览.md)。
+演示材料：[两页功能 PPT](docs/09-演示材料/CodeStreak-功能速览.pptx) · [简要介绍稿](docs/09-演示材料/CodeStreak-功能速览.md) · [逐字讲稿](docs/09-演示材料/CodeStreak-两页PPT讲稿.md)。
 
 ## License
 
